@@ -21,13 +21,13 @@ package org.apache.flume.rpc.thrift.client;
 import org.apache.flume.Event;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.FlumeException;
-import org.apache.flume.rpc.api.AbstractRpcClient;
-import org.apache.flume.rpc.api.HostInfo;
-import org.apache.flume.rpc.api.RpcClientConfigurationConstants;
-import org.apache.flume.rpc.api.SSLContextAwareAbstractRpcClient;
-import org.apache.flume.thrift.Status;
-import org.apache.flume.thrift.ThriftFlumeEvent;
-import org.apache.flume.thrift.ThriftSourceProtocol;
+import org.apache.flume.api.AbstractRpcClient;
+import org.apache.flume.api.HostInfo;
+import org.apache.flume.api.RpcClientConfigurationConstants;
+import org.apache.flume.api.SSLContextAwareAbstractRpcClient;
+import org.apache.flume.rpc.thrift.Status;
+import org.apache.flume.rpc.thrift.ThriftFlumeEvent;
+import org.apache.flume.rpc.thrift.ThriftSourceProtocol;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.transport.TSocket;
@@ -271,7 +271,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
   }
 
   @Override
-  protected void configure(Properties properties) throws FlumeException {
+  public void configure(Properties properties) throws FlumeException {
     if (isActive()) {
       throw new FlumeException("Attempting to re-configured an already " +
           "configured client!");

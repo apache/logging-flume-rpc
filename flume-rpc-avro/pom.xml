@@ -22,7 +22,7 @@ limitations under the License.
 
   <parent>
     <groupId>org.apache.flume</groupId>
-    <artifactId>flume-rpc-parent</artifactId>
+    <artifactId>flume-rpc</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
@@ -33,17 +33,13 @@ limitations under the License.
 
   <properties>
     <module.name>org.apache.flume.rpc.avro</module.name>
-    <avro.version>1.11.1</avro.version>
+    <spotbugs.maxAllowedViolations>55</spotbugs.maxAllowedViolations>
+    <pmd.maxAllowedViolations>121</pmd.maxAllowedViolations>
   </properties>
     <dependencies>
       <dependency>
-        <groupId>org.apache.flume</groupId>
-        <artifactId>flume-ng-core</artifactId>
-      </dependency>
-      <dependency>
         <groupId>org.apache.avro</groupId>
         <artifactId>avro</artifactId>
-        <version>${avro.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.avro</groupId>
@@ -56,11 +52,11 @@ limitations under the License.
       </dependency>
       <dependency>
         <groupId>org.apache.flume</groupId>
-        <artifactId>flume-rpc</artifactId>
+        <artifactId>flume-ng-sdk</artifactId>
       </dependency>
       <dependency>
         <groupId>org.apache.flume</groupId>
-        <artifactId>flume-rpc</artifactId>
+        <artifactId>flume-ng-sdk</artifactId>
         <classifier>tests</classifier>
         <scope>test</scope>
       </dependency>
@@ -71,6 +67,11 @@ limitations under the License.
       <dependency>
         <groupId>org.apache.flume</groupId>
         <artifactId>flume-ng-core</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.flume</groupId>
+        <artifactId>flume-ng-node</artifactId>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>io.dropwizard.metrics</groupId>
@@ -120,54 +121,23 @@ limitations under the License.
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
-        <version>${mockito.version}</version>
+        <artifactId>mockito-core</artifactId>
         <scope>test</scope>
       </dependency>
     </dependencies>
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>${lifecycle-mapping.version}</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.apache.avro</groupId>
-                    <artifactId>avro-maven-plugin</artifactId>
-                    <versionRange>[${avro.version},)</versionRange>
-                    <goals>
-                      <goal>idl-protocol</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <execute />
-                  </action>
-                </pluginExecution>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>com.thoughtworks.paranamer</groupId>
-                    <artifactId>paranamer-maven-plugin</artifactId>
-                    <versionRange>[${mvn-paranamer-plugin.version},)</versionRange>
-                    <goals>
-                      <goal>generate</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore />
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${mvn-compiler-plugin.version}</version>
+        <configuration>
+          <release>${releaseJavaVersion}</release>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
@@ -221,30 +191,20 @@ limitations under the License.
         </configuration>
         <executions>
           <execution>
+            <id>Avro Generate</id>
             <phase>generate-sources</phase>
             <goals>
               <goal>idl-protocol</goal>
+              <goal>schema</goal>
             </goals>
+            <configuration>
+              <sourceDirectory>${project.basedir}/src/main/avro</sourceDirectory>
+              <outputDirectory>${project.build.directory}/generated-sources/avro</outputDirectory>
+            </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>com.thoughtworks.paranamer</groupId>
-        <artifactId>paranamer-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>run</id>
-            <configuration>
-              <sourceDirectory>${project.build.directory}/generated-sources/avro</sourceDirectory>
-              <outputDirectory>${project.build.directory}/classes</outputDirectory>
-            </configuration>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -258,51 +218,4 @@ limitations under the License.
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <modules>
-        <module>flume-kafka-dist</module>
-      </modules>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>${mvn-gpg-plugin.version}</version>
-            <executions>
-              <execution>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <configuration>
-                  <keyname>${SigningUserName}</keyname>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${mvn-javadoc-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>javadoc-jar</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>aggregate-jar</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <additionalparam>-Xdoclint:none</additionalparam>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
 </project>

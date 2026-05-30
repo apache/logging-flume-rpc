@@ -21,7 +21,7 @@ package org.apache.flume.rpc.thrift.sink;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcClientFactory;
-import org.apache.flume.api.SecureRpcClientFactory;
+import org.apache.flume.rpc.thrift.api.SecureRpcClientFactory;
 import org.apache.flume.sink.AbstractRpcSink;
 
 import java.util.Properties;

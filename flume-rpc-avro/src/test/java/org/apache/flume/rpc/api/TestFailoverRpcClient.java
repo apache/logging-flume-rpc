@@ -28,6 +28,8 @@ import org.apache.avro.ipc.Server;
 import org.apache.flume.Event;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.FlumeException;
+import org.apache.flume.api.FailoverRpcClient;
+import org.apache.flume.api.RpcClientFactory;
 import org.apache.flume.rpc.avro.RpcTestUtils;
 import org.apache.flume.rpc.avro.RpcTestUtils.OKAvroHandler;
 import org.apache.flume.event.EventBuilder;

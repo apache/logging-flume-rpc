@@ -21,10 +21,10 @@ package org.apache.flume.rpc.avro.sink;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Sink;
-import org.apache.flume.rpc.api.RpcClient;
-import org.apache.flume.rpc.api.RpcClientFactory;
+import org.apache.flume.api.RpcClient;
+import org.apache.flume.api.RpcClientFactory;
 import org.apache.flume.rpc.avro.source.AvroSource;
-import org.apache.flume.rpc.sink.AbstractRpcSink;
+import org.apache.flume.sink.AbstractRpcSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
