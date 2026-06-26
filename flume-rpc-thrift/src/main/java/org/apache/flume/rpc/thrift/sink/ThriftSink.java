@@ -1,30 +1,27 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.flume.rpc.thrift.sink;
 
+import java.util.Properties;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcClientFactory;
 import org.apache.flume.rpc.thrift.api.SecureRpcClientFactory;
 import org.apache.flume.sink.AbstractRpcSink;
-
-import java.util.Properties;
 
 /**
  * <p>
@@ -103,20 +100,19 @@ import java.util.Properties;
  * </p>
  */
 public class ThriftSink extends AbstractRpcSink {
-  @Override
-  protected RpcClient initializeRpcClient(Properties props) {
-    // Only one thread is enough, since only one sink thread processes
-    // transactions at any given time. Each sink owns its own Rpc client.
-    props.setProperty(RpcClientConfigurationConstants.CONFIG_CONNECTION_POOL_SIZE,
-                      String.valueOf(1));
-    boolean enableKerberos = Boolean.parseBoolean(
-        props.getProperty(RpcClientConfigurationConstants.KERBEROS_KEY, "false"));
-    if (enableKerberos) {
-      return SecureRpcClientFactory.getThriftInstance(props);
-    } else {
-      props.setProperty(RpcClientConfigurationConstants.CONFIG_CLIENT_TYPE,
-                        RpcClientFactory.ClientType.THRIFT.name());
-      return RpcClientFactory.getInstance(props);
+    @Override
+    protected RpcClient initializeRpcClient(Properties props) {
+        // Only one thread is enough, since only one sink thread processes
+        // transactions at any given time. Each sink owns its own Rpc client.
+        props.setProperty(RpcClientConfigurationConstants.CONFIG_CONNECTION_POOL_SIZE, String.valueOf(1));
+        boolean enableKerberos =
+                Boolean.parseBoolean(props.getProperty(RpcClientConfigurationConstants.KERBEROS_KEY, "false"));
+        if (enableKerberos) {
+            return SecureRpcClientFactory.getThriftInstance(props);
+        } else {
+            props.setProperty(
+                    RpcClientConfigurationConstants.CONFIG_CLIENT_TYPE, RpcClientFactory.ClientType.THRIFT.name());
+            return RpcClientFactory.getInstance(props);
+        }
     }
-  }
 }
