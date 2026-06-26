@@ -35,7 +35,7 @@ import org.apache.flume.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.serialization.EventSerializer;
 import org.apache.flume.serialization.EventSerializerFactory;
-import org.apache.flume.source.SyslogUtils;
+import org.apache.flume.source.syslog.SyslogUtils;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;

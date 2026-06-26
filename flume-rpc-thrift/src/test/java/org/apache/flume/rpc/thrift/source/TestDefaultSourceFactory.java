@@ -20,13 +20,8 @@ import org.apache.flume.Source;
 import org.apache.flume.SourceFactory;
 import org.apache.flume.source.DefaultSourceFactory;
 import org.apache.flume.source.ExecSource;
-import org.apache.flume.source.MultiportSyslogTCPSource;
 import org.apache.flume.source.NetcatSource;
-import org.apache.flume.source.NetcatUdpSource;
 import org.apache.flume.source.SequenceGeneratorSource;
-import org.apache.flume.source.SyslogTcpSource;
-import org.apache.flume.source.SyslogUDPSource;
-import org.apache.flume.source.http.HTTPSource;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,12 +64,7 @@ public class TestDefaultSourceFactory {
     public void testSourceCreation() throws Exception {
         verifySourceCreation("seq-src", "seq", SequenceGeneratorSource.class);
         verifySourceCreation("netcat-src", "netcat", NetcatSource.class);
-        verifySourceCreation("netcat-udp-src", "netcatudp", NetcatUdpSource.class);
         verifySourceCreation("exec-src", "exec", ExecSource.class);
-        verifySourceCreation("syslogtcp-src", "syslogtcp", SyslogTcpSource.class);
-        verifySourceCreation("multiport_syslogtcp-src", "multiport_syslogtcp", MultiportSyslogTCPSource.class);
-        verifySourceCreation("syslogudp-src", "syslogudp", SyslogUDPSource.class);
-        verifySourceCreation("http-src", "http", HTTPSource.class);
         verifySourceCreation("thrift-src", "thrift", ThriftSource.class);
         verifySourceCreation("custom-src", MockSource.class.getCanonicalName(), MockSource.class);
     }

@@ -50,7 +50,7 @@ import org.apache.flume.conf.LogPrivacyUtil;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.exception.ChannelException;
 import org.apache.flume.instrumentation.SourceCounter;
-import org.apache.flume.netty.filter.PatternRule;
+import org.apache.flume.rpc.avro.netty.filter.PatternRule;
 import org.apache.flume.source.SslContextAwareAbstractSource;
 import org.apache.flume.source.avro.AvroFlumeEvent;
 import org.apache.flume.source.avro.AvroSourceProtocol;

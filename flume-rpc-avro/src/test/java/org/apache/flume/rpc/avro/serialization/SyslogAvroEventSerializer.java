@@ -31,7 +31,7 @@ import org.apache.flume.Event;
 import org.apache.flume.conf.LogPrivacyUtil;
 import org.apache.flume.rpc.avro.serialization.SyslogAvroEventSerializer.SyslogEvent;
 import org.apache.flume.serialization.EventSerializer;
-import org.apache.flume.source.SyslogUtils;
+import org.apache.flume.source.syslog.SyslogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
