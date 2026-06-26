@@ -50,7 +50,7 @@
   </scm>
 
   <properties>
-    <thrift.version>0.14.2</thrift.version>
+    <thrift.version>0.23.0</thrift.version>
     <module.name>org.apache.flume.rpc.thrift</module.name>
     <spotbugs.maxAllowedViolations>62</spotbugs.maxAllowedViolations>
     <pmd.maxAllowedViolations>121</pmd.maxAllowedViolations>
