@@ -1,0 +1,98 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to you under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# `.asf.yaml` is a branch-specific YAML configuration file for Git repositories to control features such as notifications, GitHub settings, etc.
+# See its documentation for details: https://cwiki.apache.org/confluence/display/INFRA/Git+-+.asf.yaml+features
+
+notifications:
+  # GitHub already provides notifications for PRs and issues.
+  # Please don't duplicate that noise here!
+  commits: commits@logging.apache.org
+  jira_options: link label
+github:
+  description: "Apache Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log-like data"
+  homepage: https://flume.apache.org/
+  autolink_jira:
+    - FLUME
+  labels:
+    - apache
+    - api
+    - java
+    - jvm
+    - library
+    - flume
+
+  # Pull Request settings:
+  # https://github.com/apache/infrastructure-asfyaml#pull-request-settings
+  pull_requests:
+    # allow auto-merge
+    allow_auto_merge: true
+    # enable updating head branches of pull requests
+    allow_update_branch: true
+    # auto-delete head branches after being merged
+    del_branch_on_merge: true
+
+  # Enforce squashing while merging PRs.
+  # Otherwise, the git log gets polluted severely.
+  enabled_merge_buttons:
+    squash: true
+    merge: false
+    rebase: false
+
+  features:
+    issues: true
+
+  # Disable protected branches, since we use rulesets now
+  protected_branches: ~
+
+  rulesets:
+    - name: "Branch protection"
+      type: branch
+      branches:
+        includes:
+          - "~DEFAULT_BRANCH"
+      # All reviews must be addressed before merging
+      required_conversation_resolution: true
+      # Require checks to pass before merging
+      required_status_checks:
+        # The GitHub Actions app
+        - app_slug: github-actions
+          name: "build (ubuntu-latest)"
+        # The GitHub Advanced Security app
+        - app_slug: github-advanced-security
+          name: "CodeQL"
+      # At least one positive review must be present
+      required_pull_request_reviews:
+        required_approving_review_count: 0
+    # Use raw rules, until a convenience notation for `restrict_update` is introduced.
+    # See: https://github.com/apache/infrastructure-asfyaml/issues/96
+    #
+    # The raw rules need to follow the syntax given in:
+    # https://docs.github.com/en/rest/repos/rules?apiVersion=2026-03-10#update-a-repository-ruleset
+    - name: "Tag protection"
+      target: tag
+      enforcement: active
+      bypass_actors: []
+      conditions:
+        ref_name:
+          include:
+            - "refs/tags/rel/*"
+          exclude: []
+      rules:
+        - type: deletion
+        - type: non_fast_forward
+        - type: update

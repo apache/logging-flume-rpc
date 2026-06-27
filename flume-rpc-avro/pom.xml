@@ -25,6 +25,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <groupId>org.apache.flume</groupId>
   <artifactId>flume-rpc-avro</artifactId>
   <name>Flume RPC Avro</name>
 
@@ -32,8 +33,6 @@
     <module.name>org.apache.flume.rpc.avro</module.name>
     <spotbugs.maxAllowedViolations>55</spotbugs.maxAllowedViolations>
     <pmd.maxAllowedViolations>121</pmd.maxAllowedViolations>
-
-    <!-- Temporary property -->
   </properties>
   <dependencies>
     <dependency>
@@ -77,13 +76,6 @@
       <artifactId>flume-syslog-source</artifactId>
       <scope>test</scope>
     </dependency>
-    <!--
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-core</artifactId>
-      <version>${dropwizard-metrics.version}</version>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
