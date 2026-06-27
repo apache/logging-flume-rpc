@@ -44,7 +44,7 @@
     <jackson.version>2.17.0</jackson.version>
     <netty-all.version>4.2.4.Final</netty-all.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <thrift.version>0.14.2</thrift.version>
+    <thrift.version>0.23.0</thrift.version>
   </properties>
   <dependencyManagement>
     <dependencies>
