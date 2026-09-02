@@ -59,7 +59,7 @@ import org.apache.flume.exception.ChannelException;
 import org.apache.flume.instrumentation.SourceCounter;
 import org.apache.flume.rpc.thrift.client.ThriftRpcClient;
 import org.apache.flume.rpc.thrift.source.ThriftSource;
-import org.apache.flume.util.Whitebox;
+import org.apache.flume.sdk.test.Whitebox;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;

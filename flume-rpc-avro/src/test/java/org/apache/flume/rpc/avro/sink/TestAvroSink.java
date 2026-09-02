@@ -54,10 +54,10 @@ import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.flume.lifecycle.LifecycleController;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.flume.rpc.avro.source.AvroSource;
+import org.apache.flume.sdk.test.Whitebox;
 import org.apache.flume.source.avro.AvroFlumeEvent;
 import org.apache.flume.source.avro.AvroSourceProtocol;
 import org.apache.flume.source.avro.Status;
-import org.apache.flume.util.Whitebox;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -81,11 +81,11 @@ public class TestAvroSink {
     private AvroSink sink;
     private Channel channel;
 
-    public void setUp() {
-        setUp("none", 0);
+    public void setUpSink() {
+        setUpSink("none", 0);
     }
 
-    public void setUp(String compressionType, int compressionLevel) {
+    public void setUpSink(String compressionType, int compressionLevel) {
         if (sink != null) {
             throw new RuntimeException("double setup");
         }
@@ -127,7 +127,7 @@ public class TestAvroSink {
 
     @Test
     public void testLifecycle() throws InterruptedException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
         Server server = createServer(new MockAvroServer());
 
         server.start();
@@ -144,7 +144,7 @@ public class TestAvroSink {
     @Test
     public void testProcess()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
 
         Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
         Server server = createServer(new MockAvroServer());
@@ -179,7 +179,7 @@ public class TestAvroSink {
     @Test
     public void testChannelException()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
 
         Server server = createServer(new MockAvroServer());
         server.start();
@@ -202,7 +202,7 @@ public class TestAvroSink {
     @Test
     public void testTimeout()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
         Event event = EventBuilder.withBody("foo", Charsets.UTF_8);
         AtomicLong delay = new AtomicLong();
         Server server = createServer(new DelayMockAvroServer(delay));
@@ -258,7 +258,7 @@ public class TestAvroSink {
     public void testFailedConnect()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
 
-        setUp();
+        setUpSink();
         Event event = EventBuilder.withBody("test event 1", Charset.forName("UTF8"));
         Server server = createServer(new MockAvroServer());
 
@@ -311,7 +311,7 @@ public class TestAvroSink {
     @Test
     public void testReset() throws Exception {
 
-        setUp();
+        setUpSink();
         Server server = createServer(new MockAvroServer());
 
         server.start();
@@ -377,7 +377,7 @@ public class TestAvroSink {
     @Test
     public void testSslProcessTrustAllCerts()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
 
         Context context = createBaseContext();
         context.put("ssl", String.valueOf(true));
@@ -391,7 +391,7 @@ public class TestAvroSink {
     @Test
     public void testSslProcessWithComponentTruststore()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
 
         Context context = createBaseContext();
         context.put("ssl", String.valueOf(true));
@@ -406,7 +406,7 @@ public class TestAvroSink {
     @Test
     public void testSslProcessWithComponentTruststoreNoPassword()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
 
         Context context = createBaseContext();
         context.put("ssl", String.valueOf(true));
@@ -420,7 +420,7 @@ public class TestAvroSink {
     @Test
     public void testSslProcessWithGlobalTruststore()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
 
         System.setProperty("javax.net.ssl.trustStore", "src/test/resources/truststore.jks");
         System.setProperty("javax.net.ssl.trustStorePassword", "password");
@@ -439,7 +439,7 @@ public class TestAvroSink {
     @Test
     public void testSslProcessWithGlobalTruststoreNoPassword()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
 
         System.setProperty("javax.net.ssl.trustStore", "src/test/resources/truststore.jks");
 
@@ -488,7 +488,7 @@ public class TestAvroSink {
     @Test
     public void testSslWithCompression()
             throws InterruptedException, EventDeliveryException, InstantiationException, IllegalAccessException {
-        setUp("deflate", 6);
+        setUpSink("deflate", 6);
 
         boolean bound = false;
 
@@ -575,7 +575,7 @@ public class TestAvroSink {
     @Test
     public void testSslSinkWithNonSslServer()
             throws InterruptedException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
 
         Server server = createServer(new MockAvroServer());
         server.start();
@@ -601,7 +601,7 @@ public class TestAvroSink {
     @Test
     public void testSslSinkWithNonTrustedCert()
             throws InterruptedException, InstantiationException, IllegalAccessException {
-        setUp();
+        setUpSink();
 
         Server server = createSslServer(new MockAvroServer());
         server.start();
@@ -683,9 +683,9 @@ public class TestAvroSink {
     private void doRequest(boolean serverEnableCompression, boolean clientEnableCompression, int compressionLevel)
             throws InterruptedException, IOException, EventDeliveryException {
         if (clientEnableCompression) {
-            setUp("deflate", compressionLevel);
+            setUpSink("deflate", compressionLevel);
         } else {
-            setUp("none", compressionLevel);
+            setUpSink("none", compressionLevel);
         }
 
         boolean bound = false;
