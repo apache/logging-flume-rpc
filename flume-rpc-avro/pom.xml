@@ -29,8 +29,8 @@
 
   <properties>
     <module.name>org.apache.flume.rpc.avro</module.name>
-    <spotbugs.maxAllowedViolations>55</spotbugs.maxAllowedViolations>
-    <pmd.maxAllowedViolations>121</pmd.maxAllowedViolations>
+    <spotbugs.maxAllowedViolations>38</spotbugs.maxAllowedViolations>
+    <pmd.maxAllowedViolations>14</pmd.maxAllowedViolations>
   </properties>
   <dependencies>
     <dependency>

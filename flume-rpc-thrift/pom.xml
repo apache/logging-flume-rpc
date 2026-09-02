@@ -29,8 +29,8 @@
 
   <properties>
     <module.name>org.apache.flume.rpc.thrift</module.name>
-    <spotbugs.maxAllowedViolations>62</spotbugs.maxAllowedViolations>
-    <pmd.maxAllowedViolations>121</pmd.maxAllowedViolations>
+    <spotbugs.maxAllowedViolations>26</spotbugs.maxAllowedViolations>
+    <pmd.maxAllowedViolations>88</pmd.maxAllowedViolations>
   </properties>
 
   <dependencies>
