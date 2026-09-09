@@ -16,6 +16,7 @@ patchprocess
 derby.log
 .idea
 *.iml
+.flattened-pom.xml
 nb-configuration.xml
 .DS_Store
 /.mvn/wrapper/maven-wrapper.jar
