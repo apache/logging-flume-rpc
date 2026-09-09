@@ -15,25 +15,30 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.apache.flume</groupId>
     <artifactId>flume-rpc</artifactId>
     <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
-
   <groupId>org.apache.flume</groupId>
   <artifactId>flume-rpc-thrift</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
   <name>Flume RPC Thrift</name>
-
+  <url>https://logging.apache.org/flume/2.x/index.html/flume-rpc/flume-rpc-thrift</url>
   <organization>
     <name>Apache Software Foundation</name>
     <url>http://www.apache.org</url>
   </organization>
-
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
   <developers>
     <developer>
       <id>rgoers</id>
@@ -42,22 +47,18 @@
       <organization>Nextiva</organization>
     </developer>
   </developers>
-
   <scm>
     <connection>https://gitbox.apache.org/repos/asf/flume-spring-boot.git</connection>
     <developerConnection>https://gitbox.apache.org/repos/asf/flume-spring-boot.git</developerConnection>
     <url>https://gitbox.apache.org/repos/asf/flume-spring-boot.git</url>
   </scm>
-
   <properties>
-    <!-- This artifact was never released before -->
-    <bnd.baseline.fail.on.missing>false</bnd.baseline.fail.on.missing>
     <thrift.version>0.14.2</thrift.version>
-    <module.name>org.apache.flume.rpc.thrift</module.name>
     <spotbugs.maxAllowedViolations>62</spotbugs.maxAllowedViolations>
+    <bnd.baseline.fail.on.missing>false</bnd.baseline.fail.on.missing>
     <pmd.maxAllowedViolations>121</pmd.maxAllowedViolations>
+    <module.name>org.apache.flume.rpc.thrift</module.name>
   </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.flume</groupId>
@@ -106,10 +107,8 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
-        <!-- Use a recent version -->
         <configuration>
           <compilerArgs>
             <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
@@ -129,6 +128,15 @@
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <version>${rat.version}</version>
+        <executions>
+          <execution>
+            <id>verify.rat</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
           <excludes>
             <exclude>**/.idea/</exclude>
@@ -141,7 +149,6 @@
             <exclude>**/*.yml</exclude>
             <exclude>**/*.yaml</exclude>
             <exclude>**/*.json</exclude>
-            <!-- ASF jenkins box puts the Maven repo in our root directory. -->
             <exclude>.repository/</exclude>
             <exclude>**/*.diff</exclude>
             <exclude>**/*.patch</exclude>
@@ -160,71 +167,59 @@
           </excludes>
           <consoleOutput>true</consoleOutput>
         </configuration>
-        <executions>
-          <execution>
-            <id>verify.rat</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
   <profiles>
     <profile>
       <id>compileThrift</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
+      <activation />
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
                 <id>compileThrift</id>
+                <phase>generate-sources</phase>
                 <goals>
                   <goal>run</goal>
                 </goals>
-                <phase>generate-sources</phase>
                 <configuration>
                   <target>
                     <echo file="target/compile-thrift.sh">LICENSE=src/main/thrift/aslv2
                       THRIFT_DIR=src/main/thrift
                       JAVA_DIR=target/generated-sources/thrift
-                      mkdir -p $JAVA_DIR 2&gt; /dev/null
+                      mkdir -p $JAVA_DIR 2> /dev/null
                       JSTATUS=$?
                       if [ $JSTATUS -ne 0 ] ; then
                       echo "Could not create $JAVA_DIR. Will not generate thrift files."
                       exit $JSTATUS
                       fi
-                      for THRIFT_FILE in `ls $THRIFT_DIR/*.thrift 2&gt; /dev/null`
+                      for THRIFT_FILE in `ls $THRIFT_DIR/*.thrift 2> /dev/null`
                       do
                       thrift --gen java:hashcode -o $JAVA_DIR $THRIFT_FILE
                       done
                       SRC_DIR=$JAVA_DIR/gen-java/org/apache/flume/thrift/
                       DEST_DIR=src/main/java/org/apache/flume/thrift
                       if [ ! -d $DEST_DIR ] ; then
-                      mkdir $DEST_DIR 2&gt; /dev/null
+                      mkdir $DEST_DIR 2> /dev/null
                       STATUS=$?
                       if [ $STATUS -ne 0 ] ; then
                       echo "Could not create $DEST_DIR. Will not generate thrift files."
                       exit $STATUS
                       fi
                       fi
-                      for JAVA_FILE in `ls $SRC_DIR/*.java 2&gt; /dev/null`
+                      for JAVA_FILE in `ls $SRC_DIR/*.java 2> /dev/null`
                       do
                       echo $JAVA_FILE
-                      cat $LICENSE &gt; $JAVA_FILE.tmp
-                      cat $JAVA_FILE &gt;&gt; $JAVA_FILE.tmp
+                      cat $LICENSE > $JAVA_FILE.tmp
+                      cat $JAVA_FILE >> $JAVA_FILE.tmp
                       mv $JAVA_FILE.tmp $JAVA_FILE
                       cp $JAVA_FILE $DEST_DIR
                       done
                       rm -rf $JAVA_DIR</echo>
-                    <exec dir="${basedir}" executable="sh" failonerror="true">
+                    <exec failonerror="true" dir="${basedir}" executable="sh">
                       <arg line="target/compile-thrift.sh" />
                     </exec>
                   </target>

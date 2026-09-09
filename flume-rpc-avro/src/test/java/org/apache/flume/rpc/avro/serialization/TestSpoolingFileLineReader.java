@@ -16,7 +16,10 @@
  */
 package org.apache.flume.rpc.avro.serialization;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;

@@ -16,7 +16,45 @@
  */
 package org.apache.flume.rpc.avro.source;
 
-import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.*;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.BASENAME_HEADER;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.BASENAME_HEADER_KEY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.BATCH_SIZE;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.BUFFER_MAX_LINE_LENGTH;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.CONSUME_ORDER;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.ConsumeOrder;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DECODE_ERROR_POLICY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_BASENAME_HEADER;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_BASENAME_HEADER_KEY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_BATCH_SIZE;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_CONSUME_ORDER;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_DECODE_ERROR_POLICY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_DELETE_POLICY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_DESERIALIZER;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_FILENAME_HEADER_KEY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_FILE_HEADER;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_IGNORE_PAT;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_INCLUDE_PAT;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_INPUT_CHARSET;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_MAX_BACKOFF;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_POLL_DELAY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_RECURSIVE_DIRECTORY_SEARCH;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_SPOOLED_FILE_SUFFIX;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_TRACKER_DIR;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_TRACKING_POLICY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DELETE_POLICY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DESERIALIZER;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.FILENAME_HEADER;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.FILENAME_HEADER_KEY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.IGNORE_PAT;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.INCLUDE_PAT;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.INPUT_CHARSET;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.MAX_BACKOFF;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.POLL_DELAY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.RECURSIVE_DIRECTORY_SEARCH;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.SPOOLED_FILE_SUFFIX;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.SPOOL_DIRECTORY;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.TRACKER_DIR;
+import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.TRACKING_POLICY;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;

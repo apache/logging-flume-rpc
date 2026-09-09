@@ -15,88 +15,78 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.apache.flume</groupId>
     <artifactId>flume-rpc</artifactId>
     <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
-
   <artifactId>flume-embedded-agent</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
   <name>Flume Embedded Agent</name>
   <description>Flume Embedded Agent: Stable public API for Embedding a Flume 2.x Agent</description>
-
+  <url>https://logging.apache.org/flume/2.x/index.html/flume-rpc/flume-embedded-agent</url>
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
   <properties>
-    <!-- This artifact was never released before -->
     <bnd.baseline.fail.on.missing>false</bnd.baseline.fail.on.missing>
-    <!-- TODO fix pmd violations -->
     <pmd.maxAllowedViolations>2</pmd.maxAllowedViolations>
     <module.name>org.apache.flume.agent.embedded</module.name>
   </properties>
-
   <dependencies>
-
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-ng-sdk</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-ng-configuration</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-ng-core</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-ng-node</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.flume.flume-ng-channels</groupId>
       <artifactId>flume-file-channel</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-rpc-avro</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <!-- only used for tests -->
       <optional>true</optional>
     </dependency>
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
-        <!-- Use a recent version -->
         <configuration>
           <compilerArgs>
             <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>

@@ -15,26 +15,31 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.apache.flume</groupId>
     <artifactId>flume-rpc</artifactId>
     <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
-
   <groupId>org.apache.flume</groupId>
   <artifactId>flume-rpc-avro</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
   <name>Flume RPC Avro</name>
-
+  <url>https://logging.apache.org/flume/2.x/index.html/flume-rpc/flume-rpc-avro</url>
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
   <properties>
-    <!-- This artifact was never released before -->
-    <bnd.baseline.fail.on.missing>false</bnd.baseline.fail.on.missing>
-    <module.name>org.apache.flume.rpc.avro</module.name>
     <spotbugs.maxAllowedViolations>55</spotbugs.maxAllowedViolations>
+    <bnd.baseline.fail.on.missing>false</bnd.baseline.fail.on.missing>
     <pmd.maxAllowedViolations>121</pmd.maxAllowedViolations>
+    <module.name>org.apache.flume.rpc.avro</module.name>
   </properties>
   <dependencies>
     <dependency>
@@ -45,7 +50,6 @@
       <groupId>org.apache.avro</groupId>
       <artifactId>avro-ipc-netty</artifactId>
     </dependency>
-
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>
@@ -81,25 +85,21 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j2-impl</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-jcl</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -108,12 +108,10 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -129,7 +127,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <release>${maven.compiler.release}</release>
@@ -142,6 +139,15 @@
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <version>${rat.version}</version>
+        <executions>
+          <execution>
+            <id>verify.rat</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
           <excludes>
             <exclude>**/.idea/</exclude>
@@ -154,7 +160,6 @@
             <exclude>**/*.yml</exclude>
             <exclude>**/*.yaml</exclude>
             <exclude>**/*.json</exclude>
-            <!-- ASF jenkins box puts the Maven repo in our root directory. -->
             <exclude>.repository/</exclude>
             <exclude>**/*.diff</exclude>
             <exclude>**/*.patch</exclude>
@@ -173,40 +178,29 @@
           </excludes>
           <consoleOutput>true</consoleOutput>
         </configuration>
-        <executions>
-          <execution>
-            <id>verify.rat</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.avro</groupId>
         <artifactId>avro-maven-plugin</artifactId>
-        <configuration>
-          <stringType>CharSequence</stringType>
-        </configuration>
         <executions>
           <execution>
             <id>Avro Generate</id>
+            <phase>generate-sources</phase>
             <goals>
               <goal>idl-protocol</goal>
               <goal>schema</goal>
             </goals>
-            <phase>generate-sources</phase>
             <configuration>
               <sourceDirectory>${project.basedir}/src/main/avro</sourceDirectory>
               <outputDirectory>${project.build.directory}/generated-sources/avro</outputDirectory>
             </configuration>
           </execution>
         </executions>
+        <configuration>
+          <stringType>CharSequence</stringType>
+        </configuration>
       </plugin>
-
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
           <execution>
