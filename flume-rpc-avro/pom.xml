@@ -21,18 +21,16 @@
   <parent>
     <groupId>org.apache.flume</groupId>
     <artifactId>flume-rpc</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
+    <version>${revision}</version>
   </parent>
 
-  <groupId>org.apache.flume</groupId>
   <artifactId>flume-rpc-avro</artifactId>
   <name>Flume RPC Avro</name>
 
   <properties>
     <module.name>org.apache.flume.rpc.avro</module.name>
-    <spotbugs.maxAllowedViolations>55</spotbugs.maxAllowedViolations>
-    <pmd.maxAllowedViolations>121</pmd.maxAllowedViolations>
+    <spotbugs.maxAllowedViolations>38</spotbugs.maxAllowedViolations>
+    <pmd.maxAllowedViolations>14</pmd.maxAllowedViolations>
   </properties>
   <dependencies>
     <dependency>
@@ -54,8 +52,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-sdk</artifactId>
-      <classifier>tests</classifier>
+      <artifactId>flume-ng-sdk-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -116,7 +113,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -127,62 +123,6 @@
   </dependencies>
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${mvn-compiler-plugin.version}</version>
-        <configuration>
-          <release>${releaseJavaVersion}</release>
-          <compilerArgs>
-            <arg>-parameters</arg>
-          </compilerArgs>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.rat</groupId>
-        <artifactId>apache-rat-plugin</artifactId>
-        <version>${rat.version}</version>
-        <configuration>
-          <excludes>
-            <exclude>**/.idea/</exclude>
-            <exclude>**/*.iml</exclude>
-            <exclude>src/main/resources/META-INF/services/**/*</exclude>
-            <exclude>**/nb-configuration.xml</exclude>
-            <exclude>.git/</exclude>
-            <exclude>patchprocess/</exclude>
-            <exclude>.gitignore</exclude>
-            <exclude>**/*.yml</exclude>
-            <exclude>**/*.yaml</exclude>
-            <exclude>**/*.json</exclude>
-            <!-- ASF jenkins box puts the Maven repo in our root directory. -->
-            <exclude>.repository/</exclude>
-            <exclude>**/*.diff</exclude>
-            <exclude>**/*.patch</exclude>
-            <exclude>**/*.avsc</exclude>
-            <exclude>**/*.avro</exclude>
-            <exclude>**/docs/**</exclude>
-            <exclude>**/test/resources/**</exclude>
-            <exclude>**/.settings/*</exclude>
-            <exclude>**/.classpath</exclude>
-            <exclude>**/.project</exclude>
-            <exclude>**/target/**</exclude>
-            <exclude>**/derby.log</exclude>
-            <exclude>**/metastore_db/</exclude>
-            <exclude>.mvn/**</exclude>
-            <exclude>**/exclude-pmd.properties</exclude>
-          </excludes>
-          <consoleOutput>true</consoleOutput>
-        </configuration>
-        <executions>
-          <execution>
-            <id>verify.rat</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.avro</groupId>
         <artifactId>avro-maven-plugin</artifactId>
@@ -201,18 +141,6 @@
               <sourceDirectory>${project.basedir}/src/main/avro</sourceDirectory>
               <outputDirectory>${project.build.directory}/generated-sources/avro</outputDirectory>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>

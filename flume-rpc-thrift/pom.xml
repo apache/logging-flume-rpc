@@ -21,39 +21,16 @@
   <parent>
     <groupId>org.apache.flume</groupId>
     <artifactId>flume-rpc</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
+    <version>${revision}</version>
   </parent>
 
-  <groupId>org.apache.flume</groupId>
   <artifactId>flume-rpc-thrift</artifactId>
   <name>Flume RPC Thrift</name>
 
-  <organization>
-    <name>Apache Software Foundation</name>
-    <url>http://www.apache.org</url>
-  </organization>
-
-  <developers>
-    <developer>
-      <id>rgoers</id>
-      <name>Ralph Goers</name>
-      <email>rgoers@apache.org</email>
-      <organization>Nextiva</organization>
-    </developer>
-  </developers>
-
-  <scm>
-    <connection>https://gitbox.apache.org/repos/asf/flume-spring-boot.git</connection>
-    <developerConnection>https://gitbox.apache.org/repos/asf/flume-spring-boot.git</developerConnection>
-    <url>https://gitbox.apache.org/repos/asf/flume-spring-boot.git</url>
-  </scm>
-
   <properties>
-    <thrift.version>0.14.2</thrift.version>
     <module.name>org.apache.flume.rpc.thrift</module.name>
-    <spotbugs.maxAllowedViolations>62</spotbugs.maxAllowedViolations>
-    <pmd.maxAllowedViolations>121</pmd.maxAllowedViolations>
+    <spotbugs.maxAllowedViolations>26</spotbugs.maxAllowedViolations>
+    <pmd.maxAllowedViolations>88</pmd.maxAllowedViolations>
   </properties>
 
   <dependencies>
@@ -63,8 +40,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-sdk</artifactId>
-      <classifier>tests</classifier>
+      <artifactId>flume-ng-sdk-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -78,13 +54,6 @@
     <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
-      <version>${thrift.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -102,55 +71,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.rat</groupId>
-        <artifactId>apache-rat-plugin</artifactId>
-        <version>${rat.version}</version>
-        <configuration>
-          <excludes>
-            <exclude>**/.idea/</exclude>
-            <exclude>**/*.iml</exclude>
-            <exclude>src/main/resources/META-INF/services/**/*</exclude>
-            <exclude>**/nb-configuration.xml</exclude>
-            <exclude>.git/</exclude>
-            <exclude>patchprocess/</exclude>
-            <exclude>.gitignore</exclude>
-            <exclude>**/*.yml</exclude>
-            <exclude>**/*.yaml</exclude>
-            <exclude>**/*.json</exclude>
-            <!-- ASF jenkins box puts the Maven repo in our root directory. -->
-            <exclude>.repository/</exclude>
-            <exclude>**/*.diff</exclude>
-            <exclude>**/*.patch</exclude>
-            <exclude>**/*.avsc</exclude>
-            <exclude>**/*.avro</exclude>
-            <exclude>**/docs/**</exclude>
-            <exclude>**/test/resources/**</exclude>
-            <exclude>**/.settings/*</exclude>
-            <exclude>**/.classpath</exclude>
-            <exclude>**/.project</exclude>
-            <exclude>**/target/**</exclude>
-            <exclude>**/derby.log</exclude>
-            <exclude>**/metastore_db/</exclude>
-            <exclude>.mvn/**</exclude>
-            <exclude>**/exclude-pmd.properties</exclude>
-          </excludes>
-          <consoleOutput>true</consoleOutput>
-        </configuration>
-        <executions>
-          <execution>
-            <id>verify.rat</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
   <profiles>
     <profile>
       <id>compileThrift</id>
