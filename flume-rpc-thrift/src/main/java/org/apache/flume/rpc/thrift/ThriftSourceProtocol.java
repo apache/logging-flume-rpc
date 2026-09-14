@@ -16,148 +16,196 @@
  */
 package org.apache.flume.rpc.thrift;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.thrift.AsyncProcessFunction;
+import org.apache.thrift.ProcessFunction;
+import org.apache.thrift.TApplicationException;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TBaseAsyncProcessor;
+import org.apache.thrift.TBaseHelper;
+import org.apache.thrift.TBaseProcessor;
+import org.apache.thrift.TException;
+import org.apache.thrift.TFieldIdEnum;
+import org.apache.thrift.TFieldRequirementType;
+import org.apache.thrift.TProcessor;
+import org.apache.thrift.TSerializable;
+import org.apache.thrift.TServiceClient;
+import org.apache.thrift.TServiceClientFactory;
+import org.apache.thrift.annotation.Nullable;
+import org.apache.thrift.async.AsyncMethodCallback;
+import org.apache.thrift.async.TAsyncClient;
+import org.apache.thrift.async.TAsyncClientFactory;
+import org.apache.thrift.async.TAsyncClientManager;
+import org.apache.thrift.async.TAsyncMethodCall;
+import org.apache.thrift.meta_data.EnumMetaData;
+import org.apache.thrift.meta_data.FieldMetaData;
+import org.apache.thrift.meta_data.ListMetaData;
+import org.apache.thrift.meta_data.StructMetaData;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TField;
+import org.apache.thrift.protocol.TList;
+import org.apache.thrift.protocol.TMessage;
+import org.apache.thrift.protocol.TMessageType;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.protocol.TProtocolUtil;
+import org.apache.thrift.protocol.TStruct;
+import org.apache.thrift.protocol.TTupleProtocol;
+import org.apache.thrift.protocol.TType;
+import org.apache.thrift.scheme.IScheme;
+import org.apache.thrift.scheme.SchemeFactory;
+import org.apache.thrift.scheme.StandardScheme;
+import org.apache.thrift.scheme.TupleScheme;
+import org.apache.thrift.server.AbstractNonblockingServer;
+import org.apache.thrift.transport.TIOStreamTransport;
+import org.apache.thrift.transport.TMemoryInputTransport;
+import org.apache.thrift.transport.TNonblockingTransport;
+import org.apache.thrift.transport.TTransportException;
+
 @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked", "unused"})
 public class ThriftSourceProtocol {
 
     public interface Iface {
 
-        public Status append(ThriftFlumeEvent event) throws org.apache.thrift.TException;
+        public Status append(ThriftFlumeEvent event) throws TException;
 
-        public Status appendBatch(java.util.List<ThriftFlumeEvent> events) throws org.apache.thrift.TException;
+        public Status appendBatch(List<ThriftFlumeEvent> events) throws TException;
     }
 
     public interface AsyncIface {
 
-        public void append(ThriftFlumeEvent event, org.apache.thrift.async.AsyncMethodCallback<Status> resultHandler)
-                throws org.apache.thrift.TException;
+        public void append(ThriftFlumeEvent event, AsyncMethodCallback<Status> resultHandler) throws TException;
 
-        public void appendBatch(
-                java.util.List<ThriftFlumeEvent> events,
-                org.apache.thrift.async.AsyncMethodCallback<Status> resultHandler)
-                throws org.apache.thrift.TException;
+        public void appendBatch(List<ThriftFlumeEvent> events, AsyncMethodCallback<Status> resultHandler)
+                throws TException;
     }
 
-    public static class Client extends org.apache.thrift.TServiceClient implements Iface {
-        public static class Factory implements org.apache.thrift.TServiceClientFactory<Client> {
+    public static class Client extends TServiceClient implements Iface {
+        public static class Factory implements TServiceClientFactory<Client> {
             public Factory() {}
 
             @Override
-            public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
+            public Client getClient(TProtocol prot) {
                 return new Client(prot);
             }
 
             @Override
-            public Client getClient(
-                    org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
+            public Client getClient(TProtocol iprot, TProtocol oprot) {
                 return new Client(iprot, oprot);
             }
         }
 
-        public Client(org.apache.thrift.protocol.TProtocol prot) {
+        public Client(TProtocol prot) {
             super(prot, prot);
         }
 
-        public Client(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
+        public Client(TProtocol iprot, TProtocol oprot) {
             super(iprot, oprot);
         }
 
         @Override
-        public Status append(ThriftFlumeEvent event) throws org.apache.thrift.TException {
+        public Status append(ThriftFlumeEvent event) throws TException {
             send_append(event);
             return recv_append();
         }
 
-        public void send_append(ThriftFlumeEvent event) throws org.apache.thrift.TException {
+        public void send_append(ThriftFlumeEvent event) throws TException {
             append_args args = new append_args();
             args.setEvent(event);
             sendBase("append", args);
         }
 
-        public Status recv_append() throws org.apache.thrift.TException {
+        public Status recv_append() throws TException {
             append_result result = new append_result();
             receiveBase(result, "append");
             if (result.isSetSuccess()) {
                 return result.success;
             }
-            throw new org.apache.thrift.TApplicationException(
-                    org.apache.thrift.TApplicationException.MISSING_RESULT, "append failed: unknown result");
+            throw new TApplicationException(TApplicationException.MISSING_RESULT, "append failed: unknown result");
         }
 
         @Override
-        public Status appendBatch(java.util.List<ThriftFlumeEvent> events) throws org.apache.thrift.TException {
+        public Status appendBatch(List<ThriftFlumeEvent> events) throws TException {
             send_appendBatch(events);
             return recv_appendBatch();
         }
 
-        public void send_appendBatch(java.util.List<ThriftFlumeEvent> events) throws org.apache.thrift.TException {
+        public void send_appendBatch(List<ThriftFlumeEvent> events) throws TException {
             appendBatch_args args = new appendBatch_args();
             args.setEvents(events);
             sendBase("appendBatch", args);
         }
 
-        public Status recv_appendBatch() throws org.apache.thrift.TException {
+        public Status recv_appendBatch() throws TException {
             appendBatch_result result = new appendBatch_result();
             receiveBase(result, "appendBatch");
             if (result.isSetSuccess()) {
                 return result.success;
             }
-            throw new org.apache.thrift.TApplicationException(
-                    org.apache.thrift.TApplicationException.MISSING_RESULT, "appendBatch failed: unknown result");
+            throw new TApplicationException(TApplicationException.MISSING_RESULT, "appendBatch failed: unknown result");
         }
     }
 
-    public static class AsyncClient extends org.apache.thrift.async.TAsyncClient implements AsyncIface {
-        public static class Factory implements org.apache.thrift.async.TAsyncClientFactory<AsyncClient> {
-            private org.apache.thrift.async.TAsyncClientManager clientManager;
-            private org.apache.thrift.protocol.TProtocolFactory protocolFactory;
+    public static class AsyncClient extends TAsyncClient implements AsyncIface {
+        public static class Factory implements TAsyncClientFactory<AsyncClient> {
+            private TAsyncClientManager clientManager;
+            private TProtocolFactory protocolFactory;
 
-            public Factory(
-                    org.apache.thrift.async.TAsyncClientManager clientManager,
-                    org.apache.thrift.protocol.TProtocolFactory protocolFactory) {
+            public Factory(TAsyncClientManager clientManager, TProtocolFactory protocolFactory) {
                 this.clientManager = clientManager;
                 this.protocolFactory = protocolFactory;
             }
 
             @Override
-            public AsyncClient getAsyncClient(org.apache.thrift.transport.TNonblockingTransport transport) {
+            public AsyncClient getAsyncClient(TNonblockingTransport transport) {
                 return new AsyncClient(protocolFactory, clientManager, transport);
             }
         }
 
         public AsyncClient(
-                org.apache.thrift.protocol.TProtocolFactory protocolFactory,
-                org.apache.thrift.async.TAsyncClientManager clientManager,
-                org.apache.thrift.transport.TNonblockingTransport transport) {
+                TProtocolFactory protocolFactory, TAsyncClientManager clientManager, TNonblockingTransport transport) {
             super(protocolFactory, clientManager, transport);
         }
 
         @Override
-        public void append(ThriftFlumeEvent event, org.apache.thrift.async.AsyncMethodCallback<Status> resultHandler)
-                throws org.apache.thrift.TException {
+        public void append(ThriftFlumeEvent event, AsyncMethodCallback<Status> resultHandler) throws TException {
             checkReady();
             append_call method_call = new append_call(event, resultHandler, this, ___protocolFactory, ___transport);
             this.___currentMethod = method_call;
             ___manager.call(method_call);
         }
 
-        public static class append_call extends org.apache.thrift.async.TAsyncMethodCall<Status> {
+        public static class append_call extends TAsyncMethodCall<Status> {
             private ThriftFlumeEvent event;
 
             public append_call(
                     ThriftFlumeEvent event,
-                    org.apache.thrift.async.AsyncMethodCallback<Status> resultHandler,
-                    org.apache.thrift.async.TAsyncClient client,
-                    org.apache.thrift.protocol.TProtocolFactory protocolFactory,
-                    org.apache.thrift.transport.TNonblockingTransport transport)
-                    throws org.apache.thrift.TException {
+                    AsyncMethodCallback<Status> resultHandler,
+                    TAsyncClient client,
+                    TProtocolFactory protocolFactory,
+                    TNonblockingTransport transport)
+                    throws TException {
                 super(client, protocolFactory, transport, resultHandler, false);
                 this.event = event;
             }
 
             @Override
-            public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
-                prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage(
-                        "append", org.apache.thrift.protocol.TMessageType.CALL, 0));
+            public void write_args(TProtocol prot) throws TException {
+                prot.writeMessageBegin(new TMessage("append", TMessageType.CALL, 0));
                 append_args args = new append_args();
                 args.setEvent(event);
                 args.write(prot);
@@ -165,24 +213,20 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public Status getResult() throws org.apache.thrift.TException {
-                if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+            public Status getResult() throws TException {
+                if (getState() != TAsyncMethodCall.State.RESPONSE_READ) {
                     throw new java.lang.IllegalStateException("Method call not finished!");
                 }
-                org.apache.thrift.transport.TMemoryInputTransport memoryTransport =
-                        new org.apache.thrift.transport.TMemoryInputTransport(
-                                getFrameBuffer().array());
-                org.apache.thrift.protocol.TProtocol prot =
-                        client.getProtocolFactory().getProtocol(memoryTransport);
+                TMemoryInputTransport memoryTransport =
+                        new TMemoryInputTransport(getFrameBuffer().array());
+                TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
                 return (new Client(prot)).recv_append();
             }
         }
 
         @Override
-        public void appendBatch(
-                java.util.List<ThriftFlumeEvent> events,
-                org.apache.thrift.async.AsyncMethodCallback<Status> resultHandler)
-                throws org.apache.thrift.TException {
+        public void appendBatch(List<ThriftFlumeEvent> events, AsyncMethodCallback<Status> resultHandler)
+                throws TException {
             checkReady();
             appendBatch_call method_call =
                     new appendBatch_call(events, resultHandler, this, ___protocolFactory, ___transport);
@@ -190,24 +234,23 @@ public class ThriftSourceProtocol {
             ___manager.call(method_call);
         }
 
-        public static class appendBatch_call extends org.apache.thrift.async.TAsyncMethodCall<Status> {
-            private java.util.List<ThriftFlumeEvent> events;
+        public static class appendBatch_call extends TAsyncMethodCall<Status> {
+            private List<ThriftFlumeEvent> events;
 
             public appendBatch_call(
-                    java.util.List<ThriftFlumeEvent> events,
-                    org.apache.thrift.async.AsyncMethodCallback<Status> resultHandler,
-                    org.apache.thrift.async.TAsyncClient client,
-                    org.apache.thrift.protocol.TProtocolFactory protocolFactory,
-                    org.apache.thrift.transport.TNonblockingTransport transport)
-                    throws org.apache.thrift.TException {
+                    List<ThriftFlumeEvent> events,
+                    AsyncMethodCallback<Status> resultHandler,
+                    TAsyncClient client,
+                    TProtocolFactory protocolFactory,
+                    TNonblockingTransport transport)
+                    throws TException {
                 super(client, protocolFactory, transport, resultHandler, false);
                 this.events = events;
             }
 
             @Override
-            public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
-                prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage(
-                        "appendBatch", org.apache.thrift.protocol.TMessageType.CALL, 0));
+            public void write_args(TProtocol prot) throws TException {
+                prot.writeMessageBegin(new TMessage("appendBatch", TMessageType.CALL, 0));
                 appendBatch_args args = new appendBatch_args();
                 args.setEvents(events);
                 args.write(prot);
@@ -215,63 +258,42 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public Status getResult() throws org.apache.thrift.TException {
-                if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+            public Status getResult() throws TException {
+                if (getState() != TAsyncMethodCall.State.RESPONSE_READ) {
                     throw new java.lang.IllegalStateException("Method call not finished!");
                 }
-                org.apache.thrift.transport.TMemoryInputTransport memoryTransport =
-                        new org.apache.thrift.transport.TMemoryInputTransport(
-                                getFrameBuffer().array());
-                org.apache.thrift.protocol.TProtocol prot =
-                        client.getProtocolFactory().getProtocol(memoryTransport);
+                TMemoryInputTransport memoryTransport =
+                        new TMemoryInputTransport(getFrameBuffer().array());
+                TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
                 return (new Client(prot)).recv_appendBatch();
             }
         }
     }
 
-    public static class Processor<I extends Iface> extends org.apache.thrift.TBaseProcessor<I>
-            implements org.apache.thrift.TProcessor {
-        private static final org.slf4j.Logger _LOGGER = org.slf4j.LoggerFactory.getLogger(Processor.class.getName());
+    public static class Processor<I extends Iface> extends TBaseProcessor<I> implements TProcessor {
+        private static final Logger _LOGGER = LogManager.getLogger(Processor.class.getName());
 
         public Processor(I iface) {
             super(
                     iface,
-                    getProcessMap(new java.util.HashMap<
-                            java.lang.String,
-                            org.apache.thrift.ProcessFunction<
-                                    I, ? extends org.apache.thrift.TBase, ? extends org.apache.thrift.TBase>>()));
+                    getProcessMap(
+                            new HashMap<java.lang.String, ProcessFunction<I, ? extends TBase, ? extends TBase>>()));
         }
 
         protected Processor(
-                I iface,
-                java.util.Map<
-                                java.lang.String,
-                                org.apache.thrift.ProcessFunction<
-                                        I, ? extends org.apache.thrift.TBase, ? extends org.apache.thrift.TBase>>
-                        processMap) {
+                I iface, Map<java.lang.String, ProcessFunction<I, ? extends TBase, ? extends TBase>> processMap) {
             super(iface, getProcessMap(processMap));
         }
 
         private static <I extends Iface>
-                java.util.Map<
-                                java.lang.String,
-                                org.apache.thrift.ProcessFunction<
-                                        I, ? extends org.apache.thrift.TBase, ? extends org.apache.thrift.TBase>>
-                        getProcessMap(
-                                java.util.Map<
-                                                java.lang.String,
-                                                org.apache.thrift.ProcessFunction<
-                                                        I,
-                                                        ? extends org.apache.thrift.TBase,
-                                                        ? extends org.apache.thrift.TBase>>
-                                        processMap) {
+                Map<java.lang.String, ProcessFunction<I, ? extends TBase, ? extends TBase>> getProcessMap(
+                        Map<java.lang.String, ProcessFunction<I, ? extends TBase, ? extends TBase>> processMap) {
             processMap.put("append", new append());
             processMap.put("appendBatch", new appendBatch());
             return processMap;
         }
 
-        public static class append<I extends Iface>
-                extends org.apache.thrift.ProcessFunction<I, append_args, append_result> {
+        public static class append<I extends Iface> extends ProcessFunction<I, append_args, append_result> {
             public append() {
                 super("append");
             }
@@ -297,7 +319,7 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public append_result getResult(I iface, append_args args) throws org.apache.thrift.TException {
+            public append_result getResult(I iface, append_args args) throws TException {
                 append_result result = getEmptyResultInstance();
                 result.success = iface.append(args.event);
                 return result;
@@ -305,7 +327,7 @@ public class ThriftSourceProtocol {
         }
 
         public static class appendBatch<I extends Iface>
-                extends org.apache.thrift.ProcessFunction<I, appendBatch_args, appendBatch_result> {
+                extends ProcessFunction<I, appendBatch_args, appendBatch_result> {
             public appendBatch() {
                 super("appendBatch");
             }
@@ -331,7 +353,7 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public appendBatch_result getResult(I iface, appendBatch_args args) throws org.apache.thrift.TException {
+            public appendBatch_result getResult(I iface, appendBatch_args args) throws TException {
                 appendBatch_result result = getEmptyResultInstance();
                 result.success = iface.appendBatch(args.events);
                 return result;
@@ -339,50 +361,33 @@ public class ThriftSourceProtocol {
         }
     }
 
-    public static class AsyncProcessor<I extends AsyncIface> extends org.apache.thrift.TBaseAsyncProcessor<I> {
-        private static final org.slf4j.Logger _LOGGER =
-                org.slf4j.LoggerFactory.getLogger(AsyncProcessor.class.getName());
+    public static class AsyncProcessor<I extends AsyncIface> extends TBaseAsyncProcessor<I> {
+        private static final Logger _LOGGER = LogManager.getLogger(AsyncProcessor.class.getName());
 
         public AsyncProcessor(I iface) {
             super(
                     iface,
-                    getProcessMap(new java.util.HashMap<
-                            java.lang.String,
-                            org.apache.thrift.AsyncProcessFunction<
-                                    I, ? extends org.apache.thrift.TBase, ?, ? extends org.apache.thrift.TBase>>()));
+                    getProcessMap(new HashMap<
+                            java.lang.String, AsyncProcessFunction<I, ? extends TBase, ?, ? extends TBase>>()));
         }
 
         protected AsyncProcessor(
                 I iface,
-                java.util.Map<
-                                java.lang.String,
-                                org.apache.thrift.AsyncProcessFunction<
-                                        I, ? extends org.apache.thrift.TBase, ?, ? extends org.apache.thrift.TBase>>
-                        processMap) {
+                Map<java.lang.String, AsyncProcessFunction<I, ? extends TBase, ?, ? extends TBase>> processMap) {
             super(iface, getProcessMap(processMap));
         }
 
         private static <I extends AsyncIface>
-                java.util.Map<
-                                java.lang.String,
-                                org.apache.thrift.AsyncProcessFunction<
-                                        I, ? extends org.apache.thrift.TBase, ?, ? extends org.apache.thrift.TBase>>
-                        getProcessMap(
-                                java.util.Map<
-                                                java.lang.String,
-                                                org.apache.thrift.AsyncProcessFunction<
-                                                        I,
-                                                        ? extends org.apache.thrift.TBase,
-                                                        ?,
-                                                        ? extends org.apache.thrift.TBase>>
-                                        processMap) {
+                Map<java.lang.String, AsyncProcessFunction<I, ? extends TBase, ?, ? extends TBase>> getProcessMap(
+                        Map<java.lang.String, AsyncProcessFunction<I, ? extends TBase, ?, ? extends TBase>>
+                                processMap) {
             processMap.put("append", new append());
             processMap.put("appendBatch", new appendBatch());
             return processMap;
         }
 
         public static class append<I extends AsyncIface>
-                extends org.apache.thrift.AsyncProcessFunction<I, append_args, Status, append_result> {
+                extends AsyncProcessFunction<I, append_args, Status, append_result> {
             public append() {
                 super("append");
             }
@@ -398,17 +403,17 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public org.apache.thrift.async.AsyncMethodCallback<Status> getResultHandler(
-                    final org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer fb, final int seqid) {
-                final org.apache.thrift.AsyncProcessFunction fcall = this;
-                return new org.apache.thrift.async.AsyncMethodCallback<Status>() {
+            public AsyncMethodCallback<Status> getResultHandler(
+                    final AbstractNonblockingServer.AsyncFrameBuffer fb, final int seqid) {
+                final AsyncProcessFunction fcall = this;
+                return new AsyncMethodCallback<Status>() {
                     @Override
                     public void onComplete(Status o) {
                         append_result result = new append_result();
                         result.success = o;
                         try {
-                            fcall.sendResponse(fb, result, org.apache.thrift.protocol.TMessageType.REPLY, seqid);
-                        } catch (org.apache.thrift.transport.TTransportException e) {
+                            fcall.sendResponse(fb, result, TMessageType.REPLY, seqid);
+                        } catch (TTransportException e) {
                             _LOGGER.error("TTransportException writing to internal frame buffer", e);
                             fb.close();
                         } catch (java.lang.Exception e) {
@@ -419,22 +424,21 @@ public class ThriftSourceProtocol {
 
                     @Override
                     public void onError(java.lang.Exception e) {
-                        byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
-                        org.apache.thrift.TSerializable msg;
+                        byte msgType = TMessageType.REPLY;
+                        TSerializable msg;
                         append_result result = new append_result();
-                        if (e instanceof org.apache.thrift.transport.TTransportException) {
+                        if (e instanceof TTransportException) {
                             _LOGGER.error("TTransportException inside handler", e);
                             fb.close();
                             return;
-                        } else if (e instanceof org.apache.thrift.TApplicationException) {
+                        } else if (e instanceof TApplicationException) {
                             _LOGGER.error("TApplicationException inside handler", e);
-                            msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
-                            msg = (org.apache.thrift.TApplicationException) e;
+                            msgType = TMessageType.EXCEPTION;
+                            msg = (TApplicationException) e;
                         } else {
                             _LOGGER.error("Exception inside handler", e);
-                            msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
-                            msg = new org.apache.thrift.TApplicationException(
-                                    org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+                            msgType = TMessageType.EXCEPTION;
+                            msg = new TApplicationException(TApplicationException.INTERNAL_ERROR, e.getMessage());
                         }
                         try {
                             fcall.sendResponse(fb, msg, msgType, seqid);
@@ -452,15 +456,13 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void start(
-                    I iface, append_args args, org.apache.thrift.async.AsyncMethodCallback<Status> resultHandler)
-                    throws org.apache.thrift.TException {
+            public void start(I iface, append_args args, AsyncMethodCallback<Status> resultHandler) throws TException {
                 iface.append(args.event, resultHandler);
             }
         }
 
         public static class appendBatch<I extends AsyncIface>
-                extends org.apache.thrift.AsyncProcessFunction<I, appendBatch_args, Status, appendBatch_result> {
+                extends AsyncProcessFunction<I, appendBatch_args, Status, appendBatch_result> {
             public appendBatch() {
                 super("appendBatch");
             }
@@ -476,17 +478,17 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public org.apache.thrift.async.AsyncMethodCallback<Status> getResultHandler(
-                    final org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer fb, final int seqid) {
-                final org.apache.thrift.AsyncProcessFunction fcall = this;
-                return new org.apache.thrift.async.AsyncMethodCallback<Status>() {
+            public AsyncMethodCallback<Status> getResultHandler(
+                    final AbstractNonblockingServer.AsyncFrameBuffer fb, final int seqid) {
+                final AsyncProcessFunction fcall = this;
+                return new AsyncMethodCallback<Status>() {
                     @Override
                     public void onComplete(Status o) {
                         appendBatch_result result = new appendBatch_result();
                         result.success = o;
                         try {
-                            fcall.sendResponse(fb, result, org.apache.thrift.protocol.TMessageType.REPLY, seqid);
-                        } catch (org.apache.thrift.transport.TTransportException e) {
+                            fcall.sendResponse(fb, result, TMessageType.REPLY, seqid);
+                        } catch (TTransportException e) {
                             _LOGGER.error("TTransportException writing to internal frame buffer", e);
                             fb.close();
                         } catch (java.lang.Exception e) {
@@ -497,22 +499,21 @@ public class ThriftSourceProtocol {
 
                     @Override
                     public void onError(java.lang.Exception e) {
-                        byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
-                        org.apache.thrift.TSerializable msg;
+                        byte msgType = TMessageType.REPLY;
+                        TSerializable msg;
                         appendBatch_result result = new appendBatch_result();
-                        if (e instanceof org.apache.thrift.transport.TTransportException) {
+                        if (e instanceof TTransportException) {
                             _LOGGER.error("TTransportException inside handler", e);
                             fb.close();
                             return;
-                        } else if (e instanceof org.apache.thrift.TApplicationException) {
+                        } else if (e instanceof TApplicationException) {
                             _LOGGER.error("TApplicationException inside handler", e);
-                            msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
-                            msg = (org.apache.thrift.TApplicationException) e;
+                            msgType = TMessageType.EXCEPTION;
+                            msg = (TApplicationException) e;
                         } else {
                             _LOGGER.error("Exception inside handler", e);
-                            msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
-                            msg = new org.apache.thrift.TApplicationException(
-                                    org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+                            msgType = TMessageType.EXCEPTION;
+                            msg = new TApplicationException(TApplicationException.INTERNAL_ERROR, e.getMessage());
                         }
                         try {
                             fcall.sendResponse(fb, msg, msgType, seqid);
@@ -530,9 +531,8 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void start(
-                    I iface, appendBatch_args args, org.apache.thrift.async.AsyncMethodCallback<Status> resultHandler)
-                    throws org.apache.thrift.TException {
+            public void start(I iface, appendBatch_args args, AsyncMethodCallback<Status> resultHandler)
+                    throws TException {
                 iface.appendBatch(args.events, resultHandler);
             }
         }
@@ -540,32 +540,24 @@ public class ThriftSourceProtocol {
 
     @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked", "unused"})
     public static class append_args
-            implements org.apache.thrift.TBase<append_args, append_args._Fields>,
-                    java.io.Serializable,
-                    Cloneable,
-                    Comparable<append_args> {
-        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC =
-                new org.apache.thrift.protocol.TStruct("append_args");
+            implements TBase<append_args, append_args._Fields>, Serializable, Cloneable, Comparable<append_args> {
+        private static final TStruct STRUCT_DESC = new TStruct("append_args");
 
-        private static final org.apache.thrift.protocol.TField EVENT_FIELD_DESC =
-                new org.apache.thrift.protocol.TField("event", org.apache.thrift.protocol.TType.STRUCT, (short) 1);
+        private static final TField EVENT_FIELD_DESC = new TField("event", TType.STRUCT, (short) 1);
 
-        private static final org.apache.thrift.scheme.SchemeFactory STANDARD_SCHEME_FACTORY =
-                new append_argsStandardSchemeFactory();
-        private static final org.apache.thrift.scheme.SchemeFactory TUPLE_SCHEME_FACTORY =
-                new append_argsTupleSchemeFactory();
+        private static final SchemeFactory STANDARD_SCHEME_FACTORY = new append_argsStandardSchemeFactory();
+        private static final SchemeFactory TUPLE_SCHEME_FACTORY = new append_argsTupleSchemeFactory();
 
-        public @org.apache.thrift.annotation.Nullable ThriftFlumeEvent event; // required
+        public @Nullable ThriftFlumeEvent event; // required
 
         /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-        public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+        public enum _Fields implements TFieldIdEnum {
             EVENT((short) 1, "event");
 
-            private static final java.util.Map<java.lang.String, _Fields> byName =
-                    new java.util.HashMap<java.lang.String, _Fields>();
+            private static final Map<java.lang.String, _Fields> byName = new HashMap<java.lang.String, _Fields>();
 
             static {
-                for (_Fields field : java.util.EnumSet.allOf(_Fields.class)) {
+                for (_Fields field : EnumSet.allOf(_Fields.class)) {
                     byName.put(field.getFieldName(), field);
                 }
             }
@@ -573,7 +565,7 @@ public class ThriftSourceProtocol {
             /**
              * Find the _Fields constant that matches fieldId, or null if its not found.
              */
-            @org.apache.thrift.annotation.Nullable
+            @Nullable
             public static _Fields findByThriftId(int fieldId) {
                 switch (fieldId) {
                     case 1: // EVENT
@@ -597,7 +589,7 @@ public class ThriftSourceProtocol {
             /**
              * Find the _Fields constant that matches name, or null if its not found.
              */
-            @org.apache.thrift.annotation.Nullable
+            @Nullable
             public static _Fields findByName(java.lang.String name) {
                 return byName.get(name);
             }
@@ -622,20 +614,18 @@ public class ThriftSourceProtocol {
         }
 
         // isset id assignments
-        public static final java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+        public static final Map<_Fields, FieldMetaData> metaDataMap;
 
         static {
-            java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap =
-                    new java.util.EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+            Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
             tmpMap.put(
                     _Fields.EVENT,
-                    new org.apache.thrift.meta_data.FieldMetaData(
+                    new FieldMetaData(
                             "event",
-                            org.apache.thrift.TFieldRequirementType.DEFAULT,
-                            new org.apache.thrift.meta_data.StructMetaData(
-                                    org.apache.thrift.protocol.TType.STRUCT, ThriftFlumeEvent.class)));
-            metaDataMap = java.util.Collections.unmodifiableMap(tmpMap);
-            org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(append_args.class, metaDataMap);
+                            TFieldRequirementType.DEFAULT,
+                            new StructMetaData(TType.STRUCT, ThriftFlumeEvent.class)));
+            metaDataMap = Collections.unmodifiableMap(tmpMap);
+            FieldMetaData.addStructMetaDataMap(append_args.class, metaDataMap);
         }
 
         public append_args() {}
@@ -664,12 +654,12 @@ public class ThriftSourceProtocol {
             this.event = null;
         }
 
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         public ThriftFlumeEvent getEvent() {
             return this.event;
         }
 
-        public append_args setEvent(@org.apache.thrift.annotation.Nullable ThriftFlumeEvent event) {
+        public append_args setEvent(@Nullable ThriftFlumeEvent event) {
             this.event = event;
             return this;
         }
@@ -690,7 +680,7 @@ public class ThriftSourceProtocol {
         }
 
         @Override
-        public void setFieldValue(_Fields field, @org.apache.thrift.annotation.Nullable java.lang.Object value) {
+        public void setFieldValue(_Fields field, @Nullable java.lang.Object value) {
             switch (field) {
                 case EVENT:
                     if (value == null) {
@@ -702,7 +692,7 @@ public class ThriftSourceProtocol {
             }
         }
 
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         @Override
         public java.lang.Object getFieldValue(_Fields field) {
             switch (field) {
@@ -769,7 +759,7 @@ public class ThriftSourceProtocol {
                 return lastComparison;
             }
             if (isSetEvent()) {
-                lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.event, other.event);
+                lastComparison = TBaseHelper.compareTo(this.event, other.event);
                 if (lastComparison != 0) {
                     return lastComparison;
                 }
@@ -777,19 +767,19 @@ public class ThriftSourceProtocol {
             return 0;
         }
 
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         @Override
         public _Fields fieldForId(int fieldId) {
             return _Fields.findByThriftId(fieldId);
         }
 
         @Override
-        public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+        public void read(TProtocol iprot) throws TException {
             scheme(iprot).read(iprot, this);
         }
 
         @Override
-        public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+        public void write(TProtocol oprot) throws TException {
             scheme(oprot).write(oprot, this);
         }
 
@@ -809,7 +799,7 @@ public class ThriftSourceProtocol {
             return sb.toString();
         }
 
-        public void validate() throws org.apache.thrift.TException {
+        public void validate() throws TException {
             // check for required fields
             // check for sub-struct validity
             if (event != null) {
@@ -817,58 +807,54 @@ public class ThriftSourceProtocol {
             }
         }
 
-        private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+        private void writeObject(ObjectOutputStream out) throws IOException {
             try {
-                write(new org.apache.thrift.protocol.TCompactProtocol(
-                        new org.apache.thrift.transport.TIOStreamTransport(out)));
-            } catch (org.apache.thrift.TException te) {
-                throw new java.io.IOException(te);
+                write(new TCompactProtocol(new TIOStreamTransport(out)));
+            } catch (TException te) {
+                throw new IOException(te);
             }
         }
 
-        private void readObject(java.io.ObjectInputStream in)
-                throws java.io.IOException, java.lang.ClassNotFoundException {
+        private void readObject(ObjectInputStream in) throws IOException, java.lang.ClassNotFoundException {
             try {
-                read(new org.apache.thrift.protocol.TCompactProtocol(
-                        new org.apache.thrift.transport.TIOStreamTransport(in)));
-            } catch (org.apache.thrift.TException te) {
-                throw new java.io.IOException(te);
+                read(new TCompactProtocol(new TIOStreamTransport(in)));
+            } catch (TException te) {
+                throw new IOException(te);
             }
         }
 
-        private static class append_argsStandardSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+        private static class append_argsStandardSchemeFactory implements SchemeFactory {
             @Override
             public append_argsStandardScheme getScheme() {
                 return new append_argsStandardScheme();
             }
         }
 
-        private static class append_argsStandardScheme extends org.apache.thrift.scheme.StandardScheme<append_args> {
+        private static class append_argsStandardScheme extends StandardScheme<append_args> {
 
             @Override
-            public void read(org.apache.thrift.protocol.TProtocol iprot, append_args struct)
-                    throws org.apache.thrift.TException {
+            public void read(TProtocol iprot, append_args struct) throws TException {
                 iprot.incrementRecursionDepth();
                 try {
-                    org.apache.thrift.protocol.TField schemeField;
+                    TField schemeField;
                     iprot.readStructBegin();
                     while (true) {
                         schemeField = iprot.readFieldBegin();
-                        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+                        if (schemeField.type == TType.STOP) {
                             break;
                         }
                         switch (schemeField.id) {
                             case 1: // EVENT
-                                if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                                if (schemeField.type == TType.STRUCT) {
                                     struct.event = new ThriftFlumeEvent();
                                     struct.event.read(iprot);
                                     struct.setEventIsSet(true);
                                 } else {
-                                    org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                    TProtocolUtil.skip(iprot, schemeField.type);
                                 }
                                 break;
                             default:
-                                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                TProtocolUtil.skip(iprot, schemeField.type);
                         }
                         iprot.readFieldEnd();
                     }
@@ -882,8 +868,7 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void write(org.apache.thrift.protocol.TProtocol oprot, append_args struct)
-                    throws org.apache.thrift.TException {
+            public void write(TProtocol oprot, append_args struct) throws TException {
                 struct.validate();
 
                 oprot.writeStructBegin(STRUCT_DESC);
@@ -897,20 +882,19 @@ public class ThriftSourceProtocol {
             }
         }
 
-        private static class append_argsTupleSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+        private static class append_argsTupleSchemeFactory implements SchemeFactory {
             @Override
             public append_argsTupleScheme getScheme() {
                 return new append_argsTupleScheme();
             }
         }
 
-        private static class append_argsTupleScheme extends org.apache.thrift.scheme.TupleScheme<append_args> {
+        private static class append_argsTupleScheme extends TupleScheme<append_args> {
 
             @Override
-            public void write(org.apache.thrift.protocol.TProtocol prot, append_args struct)
-                    throws org.apache.thrift.TException {
-                org.apache.thrift.protocol.TTupleProtocol oprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
-                java.util.BitSet optionals = new java.util.BitSet();
+            public void write(TProtocol prot, append_args struct) throws TException {
+                TTupleProtocol oprot = (TTupleProtocol) prot;
+                BitSet optionals = new BitSet();
                 if (struct.isSetEvent()) {
                     optionals.set(0);
                 }
@@ -921,12 +905,11 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void read(org.apache.thrift.protocol.TProtocol prot, append_args struct)
-                    throws org.apache.thrift.TException {
+            public void read(TProtocol prot, append_args struct) throws TException {
                 prot.incrementRecursionDepth();
                 try {
-                    org.apache.thrift.protocol.TTupleProtocol iprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
-                    java.util.BitSet incoming = iprot.readBitSet(1);
+                    TTupleProtocol iprot = (TTupleProtocol) prot;
+                    BitSet incoming = iprot.readBitSet(1);
                     if (incoming.get(0)) {
                         struct.event = new ThriftFlumeEvent();
                         struct.event.read(iprot);
@@ -938,51 +921,40 @@ public class ThriftSourceProtocol {
             }
         }
 
-        private static <S extends org.apache.thrift.scheme.IScheme> S scheme(
-                org.apache.thrift.protocol.TProtocol proto) {
-            return (org.apache.thrift.scheme.StandardScheme.class.equals(proto.getScheme())
-                            ? STANDARD_SCHEME_FACTORY
-                            : TUPLE_SCHEME_FACTORY)
+        private static <S extends IScheme> S scheme(TProtocol proto) {
+            return (StandardScheme.class.equals(proto.getScheme()) ? STANDARD_SCHEME_FACTORY : TUPLE_SCHEME_FACTORY)
                     .getScheme();
         }
     }
 
     @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked", "unused"})
     public static class append_result
-            implements org.apache.thrift.TBase<append_result, append_result._Fields>,
-                    java.io.Serializable,
-                    Cloneable,
-                    Comparable<append_result> {
-        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC =
-                new org.apache.thrift.protocol.TStruct("append_result");
+            implements TBase<append_result, append_result._Fields>, Serializable, Cloneable, Comparable<append_result> {
+        private static final TStruct STRUCT_DESC = new TStruct("append_result");
 
-        private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC =
-                new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short) 0);
+        private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.I32, (short) 0);
 
-        private static final org.apache.thrift.scheme.SchemeFactory STANDARD_SCHEME_FACTORY =
-                new append_resultStandardSchemeFactory();
-        private static final org.apache.thrift.scheme.SchemeFactory TUPLE_SCHEME_FACTORY =
-                new append_resultTupleSchemeFactory();
+        private static final SchemeFactory STANDARD_SCHEME_FACTORY = new append_resultStandardSchemeFactory();
+        private static final SchemeFactory TUPLE_SCHEME_FACTORY = new append_resultTupleSchemeFactory();
 
         /**
          *
          * @see Status
          */
-        public @org.apache.thrift.annotation.Nullable Status success; // required
+        public @Nullable Status success; // required
 
         /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-        public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+        public enum _Fields implements TFieldIdEnum {
             /**
              *
              * @see Status
              */
             SUCCESS((short) 0, "success");
 
-            private static final java.util.Map<java.lang.String, _Fields> byName =
-                    new java.util.HashMap<java.lang.String, _Fields>();
+            private static final Map<java.lang.String, _Fields> byName = new HashMap<java.lang.String, _Fields>();
 
             static {
-                for (_Fields field : java.util.EnumSet.allOf(_Fields.class)) {
+                for (_Fields field : EnumSet.allOf(_Fields.class)) {
                     byName.put(field.getFieldName(), field);
                 }
             }
@@ -990,7 +962,7 @@ public class ThriftSourceProtocol {
             /**
              * Find the _Fields constant that matches fieldId, or null if its not found.
              */
-            @org.apache.thrift.annotation.Nullable
+            @Nullable
             public static _Fields findByThriftId(int fieldId) {
                 switch (fieldId) {
                     case 0: // SUCCESS
@@ -1014,7 +986,7 @@ public class ThriftSourceProtocol {
             /**
              * Find the _Fields constant that matches name, or null if its not found.
              */
-            @org.apache.thrift.annotation.Nullable
+            @Nullable
             public static _Fields findByName(java.lang.String name) {
                 return byName.get(name);
             }
@@ -1039,20 +1011,16 @@ public class ThriftSourceProtocol {
         }
 
         // isset id assignments
-        public static final java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+        public static final Map<_Fields, FieldMetaData> metaDataMap;
 
         static {
-            java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap =
-                    new java.util.EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+            Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
             tmpMap.put(
                     _Fields.SUCCESS,
-                    new org.apache.thrift.meta_data.FieldMetaData(
-                            "success",
-                            org.apache.thrift.TFieldRequirementType.DEFAULT,
-                            new org.apache.thrift.meta_data.EnumMetaData(
-                                    org.apache.thrift.protocol.TType.ENUM, Status.class)));
-            metaDataMap = java.util.Collections.unmodifiableMap(tmpMap);
-            org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(append_result.class, metaDataMap);
+                    new FieldMetaData(
+                            "success", TFieldRequirementType.DEFAULT, new EnumMetaData(TType.ENUM, Status.class)));
+            metaDataMap = Collections.unmodifiableMap(tmpMap);
+            FieldMetaData.addStructMetaDataMap(append_result.class, metaDataMap);
         }
 
         public append_result() {}
@@ -1085,7 +1053,7 @@ public class ThriftSourceProtocol {
          *
          * @see Status
          */
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         public Status getSuccess() {
             return this.success;
         }
@@ -1094,7 +1062,7 @@ public class ThriftSourceProtocol {
          *
          * @see Status
          */
-        public append_result setSuccess(@org.apache.thrift.annotation.Nullable Status success) {
+        public append_result setSuccess(@Nullable Status success) {
             this.success = success;
             return this;
         }
@@ -1115,7 +1083,7 @@ public class ThriftSourceProtocol {
         }
 
         @Override
-        public void setFieldValue(_Fields field, @org.apache.thrift.annotation.Nullable java.lang.Object value) {
+        public void setFieldValue(_Fields field, @Nullable java.lang.Object value) {
             switch (field) {
                 case SUCCESS:
                     if (value == null) {
@@ -1127,7 +1095,7 @@ public class ThriftSourceProtocol {
             }
         }
 
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         @Override
         public java.lang.Object getFieldValue(_Fields field) {
             switch (field) {
@@ -1194,7 +1162,7 @@ public class ThriftSourceProtocol {
                 return lastComparison;
             }
             if (isSetSuccess()) {
-                lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+                lastComparison = TBaseHelper.compareTo(this.success, other.success);
                 if (lastComparison != 0) {
                     return lastComparison;
                 }
@@ -1202,18 +1170,18 @@ public class ThriftSourceProtocol {
             return 0;
         }
 
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         @Override
         public _Fields fieldForId(int fieldId) {
             return _Fields.findByThriftId(fieldId);
         }
 
         @Override
-        public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+        public void read(TProtocol iprot) throws TException {
             scheme(iprot).read(iprot, this);
         }
 
-        public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+        public void write(TProtocol oprot) throws TException {
             scheme(oprot).write(oprot, this);
         }
 
@@ -1233,63 +1201,58 @@ public class ThriftSourceProtocol {
             return sb.toString();
         }
 
-        public void validate() throws org.apache.thrift.TException {
+        public void validate() throws TException {
             // check for required fields
             // check for sub-struct validity
         }
 
-        private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+        private void writeObject(ObjectOutputStream out) throws IOException {
             try {
-                write(new org.apache.thrift.protocol.TCompactProtocol(
-                        new org.apache.thrift.transport.TIOStreamTransport(out)));
-            } catch (org.apache.thrift.TException te) {
-                throw new java.io.IOException(te);
+                write(new TCompactProtocol(new TIOStreamTransport(out)));
+            } catch (TException te) {
+                throw new IOException(te);
             }
         }
 
-        private void readObject(java.io.ObjectInputStream in)
-                throws java.io.IOException, java.lang.ClassNotFoundException {
+        private void readObject(ObjectInputStream in) throws IOException, java.lang.ClassNotFoundException {
             try {
-                read(new org.apache.thrift.protocol.TCompactProtocol(
-                        new org.apache.thrift.transport.TIOStreamTransport(in)));
-            } catch (org.apache.thrift.TException te) {
-                throw new java.io.IOException(te);
+                read(new TCompactProtocol(new TIOStreamTransport(in)));
+            } catch (TException te) {
+                throw new IOException(te);
             }
         }
 
-        private static class append_resultStandardSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+        private static class append_resultStandardSchemeFactory implements SchemeFactory {
             @Override
             public append_resultStandardScheme getScheme() {
                 return new append_resultStandardScheme();
             }
         }
 
-        private static class append_resultStandardScheme
-                extends org.apache.thrift.scheme.StandardScheme<append_result> {
+        private static class append_resultStandardScheme extends StandardScheme<append_result> {
 
             @Override
-            public void read(org.apache.thrift.protocol.TProtocol iprot, append_result struct)
-                    throws org.apache.thrift.TException {
+            public void read(TProtocol iprot, append_result struct) throws TException {
                 iprot.incrementRecursionDepth();
                 try {
-                    org.apache.thrift.protocol.TField schemeField;
+                    TField schemeField;
                     iprot.readStructBegin();
                     while (true) {
                         schemeField = iprot.readFieldBegin();
-                        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+                        if (schemeField.type == TType.STOP) {
                             break;
                         }
                         switch (schemeField.id) {
                             case 0: // SUCCESS
-                                if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-                                    struct.success = org.apache.flume.rpc.thrift.Status.findByValue(iprot.readI32());
+                                if (schemeField.type == TType.I32) {
+                                    struct.success = Status.findByValue(iprot.readI32());
                                     struct.setSuccessIsSet(true);
                                 } else {
-                                    org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                    TProtocolUtil.skip(iprot, schemeField.type);
                                 }
                                 break;
                             default:
-                                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                TProtocolUtil.skip(iprot, schemeField.type);
                         }
                         iprot.readFieldEnd();
                     }
@@ -1303,8 +1266,7 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void write(org.apache.thrift.protocol.TProtocol oprot, append_result struct)
-                    throws org.apache.thrift.TException {
+            public void write(TProtocol oprot, append_result struct) throws TException {
                 struct.validate();
 
                 oprot.writeStructBegin(STRUCT_DESC);
@@ -1318,20 +1280,19 @@ public class ThriftSourceProtocol {
             }
         }
 
-        private static class append_resultTupleSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+        private static class append_resultTupleSchemeFactory implements SchemeFactory {
             @Override
             public append_resultTupleScheme getScheme() {
                 return new append_resultTupleScheme();
             }
         }
 
-        private static class append_resultTupleScheme extends org.apache.thrift.scheme.TupleScheme<append_result> {
+        private static class append_resultTupleScheme extends TupleScheme<append_result> {
 
             @Override
-            public void write(org.apache.thrift.protocol.TProtocol prot, append_result struct)
-                    throws org.apache.thrift.TException {
-                org.apache.thrift.protocol.TTupleProtocol oprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
-                java.util.BitSet optionals = new java.util.BitSet();
+            public void write(TProtocol prot, append_result struct) throws TException {
+                TTupleProtocol oprot = (TTupleProtocol) prot;
+                BitSet optionals = new BitSet();
                 if (struct.isSetSuccess()) {
                     optionals.set(0);
                 }
@@ -1342,14 +1303,13 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void read(org.apache.thrift.protocol.TProtocol prot, append_result struct)
-                    throws org.apache.thrift.TException {
+            public void read(TProtocol prot, append_result struct) throws TException {
                 prot.incrementRecursionDepth();
                 try {
-                    org.apache.thrift.protocol.TTupleProtocol iprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
-                    java.util.BitSet incoming = iprot.readBitSet(1);
+                    TTupleProtocol iprot = (TTupleProtocol) prot;
+                    BitSet incoming = iprot.readBitSet(1);
                     if (incoming.get(0)) {
-                        struct.success = org.apache.flume.rpc.thrift.Status.findByValue(iprot.readI32());
+                        struct.success = Status.findByValue(iprot.readI32());
                         struct.setSuccessIsSet(true);
                     }
                 } finally {
@@ -1358,43 +1318,35 @@ public class ThriftSourceProtocol {
             }
         }
 
-        private static <S extends org.apache.thrift.scheme.IScheme> S scheme(
-                org.apache.thrift.protocol.TProtocol proto) {
-            return (org.apache.thrift.scheme.StandardScheme.class.equals(proto.getScheme())
-                            ? STANDARD_SCHEME_FACTORY
-                            : TUPLE_SCHEME_FACTORY)
+        private static <S extends IScheme> S scheme(TProtocol proto) {
+            return (StandardScheme.class.equals(proto.getScheme()) ? STANDARD_SCHEME_FACTORY : TUPLE_SCHEME_FACTORY)
                     .getScheme();
         }
     }
 
     @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked", "unused"})
     public static class appendBatch_args
-            implements org.apache.thrift.TBase<appendBatch_args, appendBatch_args._Fields>,
-                    java.io.Serializable,
+            implements TBase<appendBatch_args, appendBatch_args._Fields>,
+                    Serializable,
                     Cloneable,
                     Comparable<appendBatch_args> {
-        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC =
-                new org.apache.thrift.protocol.TStruct("appendBatch_args");
+        private static final TStruct STRUCT_DESC = new TStruct("appendBatch_args");
 
-        private static final org.apache.thrift.protocol.TField EVENTS_FIELD_DESC =
-                new org.apache.thrift.protocol.TField("events", org.apache.thrift.protocol.TType.LIST, (short) 1);
+        private static final TField EVENTS_FIELD_DESC = new TField("events", TType.LIST, (short) 1);
 
-        private static final org.apache.thrift.scheme.SchemeFactory STANDARD_SCHEME_FACTORY =
-                new appendBatch_argsStandardSchemeFactory();
-        private static final org.apache.thrift.scheme.SchemeFactory TUPLE_SCHEME_FACTORY =
-                new appendBatch_argsTupleSchemeFactory();
+        private static final SchemeFactory STANDARD_SCHEME_FACTORY = new appendBatch_argsStandardSchemeFactory();
+        private static final SchemeFactory TUPLE_SCHEME_FACTORY = new appendBatch_argsTupleSchemeFactory();
 
-        public @org.apache.thrift.annotation.Nullable java.util.List<ThriftFlumeEvent> events; // required
+        public @Nullable List<ThriftFlumeEvent> events; // required
 
         /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-        public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+        public enum _Fields implements TFieldIdEnum {
             EVENTS((short) 1, "events");
 
-            private static final java.util.Map<java.lang.String, _Fields> byName =
-                    new java.util.HashMap<java.lang.String, _Fields>();
+            private static final Map<java.lang.String, _Fields> byName = new HashMap<java.lang.String, _Fields>();
 
             static {
-                for (_Fields field : java.util.EnumSet.allOf(_Fields.class)) {
+                for (_Fields field : EnumSet.allOf(_Fields.class)) {
                     byName.put(field.getFieldName(), field);
                 }
             }
@@ -1402,7 +1354,7 @@ public class ThriftSourceProtocol {
             /**
              * Find the _Fields constant that matches fieldId, or null if its not found.
              */
-            @org.apache.thrift.annotation.Nullable
+            @Nullable
             public static _Fields findByThriftId(int fieldId) {
                 switch (fieldId) {
                     case 1: // EVENTS
@@ -1426,7 +1378,7 @@ public class ThriftSourceProtocol {
             /**
              * Find the _Fields constant that matches name, or null if its not found.
              */
-            @org.apache.thrift.annotation.Nullable
+            @Nullable
             public static _Fields findByName(java.lang.String name) {
                 return byName.get(name);
             }
@@ -1451,27 +1403,23 @@ public class ThriftSourceProtocol {
         }
 
         // isset id assignments
-        public static final java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+        public static final Map<_Fields, FieldMetaData> metaDataMap;
 
         static {
-            java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap =
-                    new java.util.EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+            Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
             tmpMap.put(
                     _Fields.EVENTS,
-                    new org.apache.thrift.meta_data.FieldMetaData(
+                    new FieldMetaData(
                             "events",
-                            org.apache.thrift.TFieldRequirementType.DEFAULT,
-                            new org.apache.thrift.meta_data.ListMetaData(
-                                    org.apache.thrift.protocol.TType.LIST,
-                                    new org.apache.thrift.meta_data.StructMetaData(
-                                            org.apache.thrift.protocol.TType.STRUCT, ThriftFlumeEvent.class))));
-            metaDataMap = java.util.Collections.unmodifiableMap(tmpMap);
-            org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(appendBatch_args.class, metaDataMap);
+                            TFieldRequirementType.DEFAULT,
+                            new ListMetaData(TType.LIST, new StructMetaData(TType.STRUCT, ThriftFlumeEvent.class))));
+            metaDataMap = Collections.unmodifiableMap(tmpMap);
+            FieldMetaData.addStructMetaDataMap(appendBatch_args.class, metaDataMap);
         }
 
         public appendBatch_args() {}
 
-        public appendBatch_args(java.util.List<ThriftFlumeEvent> events) {
+        public appendBatch_args(List<ThriftFlumeEvent> events) {
             this();
             this.events = events;
         }
@@ -1481,8 +1429,7 @@ public class ThriftSourceProtocol {
          */
         public appendBatch_args(appendBatch_args other) {
             if (other.isSetEvents()) {
-                java.util.List<ThriftFlumeEvent> __this__events =
-                        new java.util.ArrayList<ThriftFlumeEvent>(other.events.size());
+                List<ThriftFlumeEvent> __this__events = new ArrayList<ThriftFlumeEvent>(other.events.size());
                 for (ThriftFlumeEvent other_element : other.events) {
                     __this__events.add(new ThriftFlumeEvent(other_element));
                 }
@@ -1504,25 +1451,24 @@ public class ThriftSourceProtocol {
             return (this.events == null) ? 0 : this.events.size();
         }
 
-        @org.apache.thrift.annotation.Nullable
-        public java.util.Iterator<ThriftFlumeEvent> getEventsIterator() {
+        @Nullable
+        public Iterator<ThriftFlumeEvent> getEventsIterator() {
             return (this.events == null) ? null : this.events.iterator();
         }
 
         public void addToEvents(ThriftFlumeEvent elem) {
             if (this.events == null) {
-                this.events = new java.util.ArrayList<ThriftFlumeEvent>();
+                this.events = new ArrayList<ThriftFlumeEvent>();
             }
             this.events.add(elem);
         }
 
-        @org.apache.thrift.annotation.Nullable
-        public java.util.List<ThriftFlumeEvent> getEvents() {
+        @Nullable
+        public List<ThriftFlumeEvent> getEvents() {
             return this.events;
         }
 
-        public appendBatch_args setEvents(
-                @org.apache.thrift.annotation.Nullable java.util.List<ThriftFlumeEvent> events) {
+        public appendBatch_args setEvents(@Nullable List<ThriftFlumeEvent> events) {
             this.events = events;
             return this;
         }
@@ -1543,19 +1489,19 @@ public class ThriftSourceProtocol {
         }
 
         @Override
-        public void setFieldValue(_Fields field, @org.apache.thrift.annotation.Nullable java.lang.Object value) {
+        public void setFieldValue(_Fields field, @Nullable java.lang.Object value) {
             switch (field) {
                 case EVENTS:
                     if (value == null) {
                         unsetEvents();
                     } else {
-                        setEvents((java.util.List<ThriftFlumeEvent>) value);
+                        setEvents((List<ThriftFlumeEvent>) value);
                     }
                     break;
             }
         }
 
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         @Override
         public java.lang.Object getFieldValue(_Fields field) {
             switch (field) {
@@ -1622,7 +1568,7 @@ public class ThriftSourceProtocol {
                 return lastComparison;
             }
             if (isSetEvents()) {
-                lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.events, other.events);
+                lastComparison = TBaseHelper.compareTo(this.events, other.events);
                 if (lastComparison != 0) {
                     return lastComparison;
                 }
@@ -1630,19 +1576,19 @@ public class ThriftSourceProtocol {
             return 0;
         }
 
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         @Override
         public _Fields fieldForId(int fieldId) {
             return _Fields.findByThriftId(fieldId);
         }
 
         @Override
-        public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+        public void read(TProtocol iprot) throws TException {
             scheme(iprot).read(iprot, this);
         }
 
         @Override
-        public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+        public void write(TProtocol oprot) throws TException {
             scheme(oprot).write(oprot, this);
         }
 
@@ -1662,59 +1608,54 @@ public class ThriftSourceProtocol {
             return sb.toString();
         }
 
-        public void validate() throws org.apache.thrift.TException {
+        public void validate() throws TException {
             // check for required fields
             // check for sub-struct validity
         }
 
-        private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+        private void writeObject(ObjectOutputStream out) throws IOException {
             try {
-                write(new org.apache.thrift.protocol.TCompactProtocol(
-                        new org.apache.thrift.transport.TIOStreamTransport(out)));
-            } catch (org.apache.thrift.TException te) {
-                throw new java.io.IOException(te);
+                write(new TCompactProtocol(new TIOStreamTransport(out)));
+            } catch (TException te) {
+                throw new IOException(te);
             }
         }
 
-        private void readObject(java.io.ObjectInputStream in)
-                throws java.io.IOException, java.lang.ClassNotFoundException {
+        private void readObject(ObjectInputStream in) throws IOException, java.lang.ClassNotFoundException {
             try {
-                read(new org.apache.thrift.protocol.TCompactProtocol(
-                        new org.apache.thrift.transport.TIOStreamTransport(in)));
-            } catch (org.apache.thrift.TException te) {
-                throw new java.io.IOException(te);
+                read(new TCompactProtocol(new TIOStreamTransport(in)));
+            } catch (TException te) {
+                throw new IOException(te);
             }
         }
 
-        private static class appendBatch_argsStandardSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+        private static class appendBatch_argsStandardSchemeFactory implements SchemeFactory {
             @Override
             public appendBatch_argsStandardScheme getScheme() {
                 return new appendBatch_argsStandardScheme();
             }
         }
 
-        private static class appendBatch_argsStandardScheme
-                extends org.apache.thrift.scheme.StandardScheme<appendBatch_args> {
+        private static class appendBatch_argsStandardScheme extends StandardScheme<appendBatch_args> {
 
             @Override
-            public void read(org.apache.thrift.protocol.TProtocol iprot, appendBatch_args struct)
-                    throws org.apache.thrift.TException {
+            public void read(TProtocol iprot, appendBatch_args struct) throws TException {
                 iprot.incrementRecursionDepth();
                 try {
-                    org.apache.thrift.protocol.TField schemeField;
+                    TField schemeField;
                     iprot.readStructBegin();
                     while (true) {
                         schemeField = iprot.readFieldBegin();
-                        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+                        if (schemeField.type == TType.STOP) {
                             break;
                         }
                         switch (schemeField.id) {
                             case 1: // EVENTS
-                                if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                                if (schemeField.type == TType.LIST) {
                                     {
-                                        org.apache.thrift.protocol.TList _list10 = iprot.readListBegin();
-                                        struct.events = new java.util.ArrayList<ThriftFlumeEvent>(_list10.size);
-                                        @org.apache.thrift.annotation.Nullable ThriftFlumeEvent _elem11;
+                                        TList _list10 = iprot.readListBegin();
+                                        struct.events = new ArrayList<ThriftFlumeEvent>(_list10.size);
+                                        @Nullable ThriftFlumeEvent _elem11;
                                         for (int _i12 = 0; _i12 < _list10.size; ++_i12) {
                                             _elem11 = new ThriftFlumeEvent();
                                             _elem11.read(iprot);
@@ -1724,11 +1665,11 @@ public class ThriftSourceProtocol {
                                     }
                                     struct.setEventsIsSet(true);
                                 } else {
-                                    org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                    TProtocolUtil.skip(iprot, schemeField.type);
                                 }
                                 break;
                             default:
-                                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                TProtocolUtil.skip(iprot, schemeField.type);
                         }
                         iprot.readFieldEnd();
                     }
@@ -1742,16 +1683,14 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void write(org.apache.thrift.protocol.TProtocol oprot, appendBatch_args struct)
-                    throws org.apache.thrift.TException {
+            public void write(TProtocol oprot, appendBatch_args struct) throws TException {
                 struct.validate();
 
                 oprot.writeStructBegin(STRUCT_DESC);
                 if (struct.events != null) {
                     oprot.writeFieldBegin(EVENTS_FIELD_DESC);
                     {
-                        oprot.writeListBegin(new org.apache.thrift.protocol.TList(
-                                org.apache.thrift.protocol.TType.STRUCT, struct.events.size()));
+                        oprot.writeListBegin(new TList(TType.STRUCT, struct.events.size()));
                         for (ThriftFlumeEvent _iter13 : struct.events) {
                             _iter13.write(oprot);
                         }
@@ -1764,21 +1703,19 @@ public class ThriftSourceProtocol {
             }
         }
 
-        private static class appendBatch_argsTupleSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+        private static class appendBatch_argsTupleSchemeFactory implements SchemeFactory {
             @Override
             public appendBatch_argsTupleScheme getScheme() {
                 return new appendBatch_argsTupleScheme();
             }
         }
 
-        private static class appendBatch_argsTupleScheme
-                extends org.apache.thrift.scheme.TupleScheme<appendBatch_args> {
+        private static class appendBatch_argsTupleScheme extends TupleScheme<appendBatch_args> {
 
             @Override
-            public void write(org.apache.thrift.protocol.TProtocol prot, appendBatch_args struct)
-                    throws org.apache.thrift.TException {
-                org.apache.thrift.protocol.TTupleProtocol oprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
-                java.util.BitSet optionals = new java.util.BitSet();
+            public void write(TProtocol prot, appendBatch_args struct) throws TException {
+                TTupleProtocol oprot = (TTupleProtocol) prot;
+                BitSet optionals = new BitSet();
                 if (struct.isSetEvents()) {
                     optionals.set(0);
                 }
@@ -1794,18 +1731,16 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void read(org.apache.thrift.protocol.TProtocol prot, appendBatch_args struct)
-                    throws org.apache.thrift.TException {
+            public void read(TProtocol prot, appendBatch_args struct) throws TException {
                 prot.incrementRecursionDepth();
                 try {
-                    org.apache.thrift.protocol.TTupleProtocol iprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
-                    java.util.BitSet incoming = iprot.readBitSet(1);
+                    TTupleProtocol iprot = (TTupleProtocol) prot;
+                    BitSet incoming = iprot.readBitSet(1);
                     if (incoming.get(0)) {
                         {
-                            org.apache.thrift.protocol.TList _list15 =
-                                    iprot.readListBegin(org.apache.thrift.protocol.TType.STRUCT);
-                            struct.events = new java.util.ArrayList<ThriftFlumeEvent>(_list15.size);
-                            @org.apache.thrift.annotation.Nullable ThriftFlumeEvent _elem16;
+                            TList _list15 = iprot.readListBegin(TType.STRUCT);
+                            struct.events = new ArrayList<ThriftFlumeEvent>(_list15.size);
+                            @Nullable ThriftFlumeEvent _elem16;
                             for (int _i17 = 0; _i17 < _list15.size; ++_i17) {
                                 _elem16 = new ThriftFlumeEvent();
                                 _elem16.read(iprot);
@@ -1820,51 +1755,43 @@ public class ThriftSourceProtocol {
             }
         }
 
-        private static <S extends org.apache.thrift.scheme.IScheme> S scheme(
-                org.apache.thrift.protocol.TProtocol proto) {
-            return (org.apache.thrift.scheme.StandardScheme.class.equals(proto.getScheme())
-                            ? STANDARD_SCHEME_FACTORY
-                            : TUPLE_SCHEME_FACTORY)
+        private static <S extends IScheme> S scheme(TProtocol proto) {
+            return (StandardScheme.class.equals(proto.getScheme()) ? STANDARD_SCHEME_FACTORY : TUPLE_SCHEME_FACTORY)
                     .getScheme();
         }
     }
 
     @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked", "unused"})
     public static class appendBatch_result
-            implements org.apache.thrift.TBase<appendBatch_result, appendBatch_result._Fields>,
-                    java.io.Serializable,
+            implements TBase<appendBatch_result, appendBatch_result._Fields>,
+                    Serializable,
                     Cloneable,
                     Comparable<appendBatch_result> {
-        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC =
-                new org.apache.thrift.protocol.TStruct("appendBatch_result");
+        private static final TStruct STRUCT_DESC = new TStruct("appendBatch_result");
 
-        private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC =
-                new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short) 0);
+        private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.I32, (short) 0);
 
-        private static final org.apache.thrift.scheme.SchemeFactory STANDARD_SCHEME_FACTORY =
-                new appendBatch_resultStandardSchemeFactory();
-        private static final org.apache.thrift.scheme.SchemeFactory TUPLE_SCHEME_FACTORY =
-                new appendBatch_resultTupleSchemeFactory();
+        private static final SchemeFactory STANDARD_SCHEME_FACTORY = new appendBatch_resultStandardSchemeFactory();
+        private static final SchemeFactory TUPLE_SCHEME_FACTORY = new appendBatch_resultTupleSchemeFactory();
 
         /**
          *
          * @see Status
          */
-        public @org.apache.thrift.annotation.Nullable Status success; // required
+        public @Nullable Status success; // required
 
         /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-        public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+        public enum _Fields implements TFieldIdEnum {
             /**
              *
              * @see Status
              */
             SUCCESS((short) 0, "success");
 
-            private static final java.util.Map<java.lang.String, _Fields> byName =
-                    new java.util.HashMap<java.lang.String, _Fields>();
+            private static final Map<java.lang.String, _Fields> byName = new HashMap<java.lang.String, _Fields>();
 
             static {
-                for (_Fields field : java.util.EnumSet.allOf(_Fields.class)) {
+                for (_Fields field : EnumSet.allOf(_Fields.class)) {
                     byName.put(field.getFieldName(), field);
                 }
             }
@@ -1872,7 +1799,7 @@ public class ThriftSourceProtocol {
             /**
              * Find the _Fields constant that matches fieldId, or null if its not found.
              */
-            @org.apache.thrift.annotation.Nullable
+            @Nullable
             public static _Fields findByThriftId(int fieldId) {
                 switch (fieldId) {
                     case 0: // SUCCESS
@@ -1896,7 +1823,7 @@ public class ThriftSourceProtocol {
             /**
              * Find the _Fields constant that matches name, or null if its not found.
              */
-            @org.apache.thrift.annotation.Nullable
+            @Nullable
             public static _Fields findByName(java.lang.String name) {
                 return byName.get(name);
             }
@@ -1921,20 +1848,16 @@ public class ThriftSourceProtocol {
         }
 
         // isset id assignments
-        public static final java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+        public static final Map<_Fields, FieldMetaData> metaDataMap;
 
         static {
-            java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap =
-                    new java.util.EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+            Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
             tmpMap.put(
                     _Fields.SUCCESS,
-                    new org.apache.thrift.meta_data.FieldMetaData(
-                            "success",
-                            org.apache.thrift.TFieldRequirementType.DEFAULT,
-                            new org.apache.thrift.meta_data.EnumMetaData(
-                                    org.apache.thrift.protocol.TType.ENUM, Status.class)));
-            metaDataMap = java.util.Collections.unmodifiableMap(tmpMap);
-            org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(appendBatch_result.class, metaDataMap);
+                    new FieldMetaData(
+                            "success", TFieldRequirementType.DEFAULT, new EnumMetaData(TType.ENUM, Status.class)));
+            metaDataMap = Collections.unmodifiableMap(tmpMap);
+            FieldMetaData.addStructMetaDataMap(appendBatch_result.class, metaDataMap);
         }
 
         public appendBatch_result() {}
@@ -1967,7 +1890,7 @@ public class ThriftSourceProtocol {
          *
          * @see Status
          */
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         public Status getSuccess() {
             return this.success;
         }
@@ -1976,7 +1899,7 @@ public class ThriftSourceProtocol {
          *
          * @see Status
          */
-        public appendBatch_result setSuccess(@org.apache.thrift.annotation.Nullable Status success) {
+        public appendBatch_result setSuccess(@Nullable Status success) {
             this.success = success;
             return this;
         }
@@ -1997,7 +1920,7 @@ public class ThriftSourceProtocol {
         }
 
         @Override
-        public void setFieldValue(_Fields field, @org.apache.thrift.annotation.Nullable java.lang.Object value) {
+        public void setFieldValue(_Fields field, @Nullable java.lang.Object value) {
             switch (field) {
                 case SUCCESS:
                     if (value == null) {
@@ -2009,7 +1932,7 @@ public class ThriftSourceProtocol {
             }
         }
 
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         @Override
         public java.lang.Object getFieldValue(_Fields field) {
             switch (field) {
@@ -2076,7 +1999,7 @@ public class ThriftSourceProtocol {
                 return lastComparison;
             }
             if (isSetSuccess()) {
-                lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+                lastComparison = TBaseHelper.compareTo(this.success, other.success);
                 if (lastComparison != 0) {
                     return lastComparison;
                 }
@@ -2084,18 +2007,18 @@ public class ThriftSourceProtocol {
             return 0;
         }
 
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         @Override
         public _Fields fieldForId(int fieldId) {
             return _Fields.findByThriftId(fieldId);
         }
 
         @Override
-        public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+        public void read(TProtocol iprot) throws TException {
             scheme(iprot).read(iprot, this);
         }
 
-        public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+        public void write(TProtocol oprot) throws TException {
             scheme(oprot).write(oprot, this);
         }
 
@@ -2115,63 +2038,58 @@ public class ThriftSourceProtocol {
             return sb.toString();
         }
 
-        public void validate() throws org.apache.thrift.TException {
+        public void validate() throws TException {
             // check for required fields
             // check for sub-struct validity
         }
 
-        private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+        private void writeObject(ObjectOutputStream out) throws IOException {
             try {
-                write(new org.apache.thrift.protocol.TCompactProtocol(
-                        new org.apache.thrift.transport.TIOStreamTransport(out)));
-            } catch (org.apache.thrift.TException te) {
-                throw new java.io.IOException(te);
+                write(new TCompactProtocol(new TIOStreamTransport(out)));
+            } catch (TException te) {
+                throw new IOException(te);
             }
         }
 
-        private void readObject(java.io.ObjectInputStream in)
-                throws java.io.IOException, java.lang.ClassNotFoundException {
+        private void readObject(ObjectInputStream in) throws IOException, java.lang.ClassNotFoundException {
             try {
-                read(new org.apache.thrift.protocol.TCompactProtocol(
-                        new org.apache.thrift.transport.TIOStreamTransport(in)));
-            } catch (org.apache.thrift.TException te) {
-                throw new java.io.IOException(te);
+                read(new TCompactProtocol(new TIOStreamTransport(in)));
+            } catch (TException te) {
+                throw new IOException(te);
             }
         }
 
-        private static class appendBatch_resultStandardSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+        private static class appendBatch_resultStandardSchemeFactory implements SchemeFactory {
             @Override
             public appendBatch_resultStandardScheme getScheme() {
                 return new appendBatch_resultStandardScheme();
             }
         }
 
-        private static class appendBatch_resultStandardScheme
-                extends org.apache.thrift.scheme.StandardScheme<appendBatch_result> {
+        private static class appendBatch_resultStandardScheme extends StandardScheme<appendBatch_result> {
 
             @Override
-            public void read(org.apache.thrift.protocol.TProtocol iprot, appendBatch_result struct)
-                    throws org.apache.thrift.TException {
+            public void read(TProtocol iprot, appendBatch_result struct) throws TException {
                 iprot.incrementRecursionDepth();
                 try {
-                    org.apache.thrift.protocol.TField schemeField;
+                    TField schemeField;
                     iprot.readStructBegin();
                     while (true) {
                         schemeField = iprot.readFieldBegin();
-                        if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+                        if (schemeField.type == TType.STOP) {
                             break;
                         }
                         switch (schemeField.id) {
                             case 0: // SUCCESS
-                                if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-                                    struct.success = org.apache.flume.rpc.thrift.Status.findByValue(iprot.readI32());
+                                if (schemeField.type == TType.I32) {
+                                    struct.success = Status.findByValue(iprot.readI32());
                                     struct.setSuccessIsSet(true);
                                 } else {
-                                    org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                    TProtocolUtil.skip(iprot, schemeField.type);
                                 }
                                 break;
                             default:
-                                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                TProtocolUtil.skip(iprot, schemeField.type);
                         }
                         iprot.readFieldEnd();
                     }
@@ -2185,8 +2103,7 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void write(org.apache.thrift.protocol.TProtocol oprot, appendBatch_result struct)
-                    throws org.apache.thrift.TException {
+            public void write(TProtocol oprot, appendBatch_result struct) throws TException {
                 struct.validate();
 
                 oprot.writeStructBegin(STRUCT_DESC);
@@ -2200,21 +2117,19 @@ public class ThriftSourceProtocol {
             }
         }
 
-        private static class appendBatch_resultTupleSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+        private static class appendBatch_resultTupleSchemeFactory implements SchemeFactory {
             @Override
             public appendBatch_resultTupleScheme getScheme() {
                 return new appendBatch_resultTupleScheme();
             }
         }
 
-        private static class appendBatch_resultTupleScheme
-                extends org.apache.thrift.scheme.TupleScheme<appendBatch_result> {
+        private static class appendBatch_resultTupleScheme extends TupleScheme<appendBatch_result> {
 
             @Override
-            public void write(org.apache.thrift.protocol.TProtocol prot, appendBatch_result struct)
-                    throws org.apache.thrift.TException {
-                org.apache.thrift.protocol.TTupleProtocol oprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
-                java.util.BitSet optionals = new java.util.BitSet();
+            public void write(TProtocol prot, appendBatch_result struct) throws TException {
+                TTupleProtocol oprot = (TTupleProtocol) prot;
+                BitSet optionals = new BitSet();
                 if (struct.isSetSuccess()) {
                     optionals.set(0);
                 }
@@ -2225,14 +2140,13 @@ public class ThriftSourceProtocol {
             }
 
             @Override
-            public void read(org.apache.thrift.protocol.TProtocol prot, appendBatch_result struct)
-                    throws org.apache.thrift.TException {
+            public void read(TProtocol prot, appendBatch_result struct) throws TException {
                 prot.incrementRecursionDepth();
                 try {
-                    org.apache.thrift.protocol.TTupleProtocol iprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
-                    java.util.BitSet incoming = iprot.readBitSet(1);
+                    TTupleProtocol iprot = (TTupleProtocol) prot;
+                    BitSet incoming = iprot.readBitSet(1);
                     if (incoming.get(0)) {
-                        struct.success = org.apache.flume.rpc.thrift.Status.findByValue(iprot.readI32());
+                        struct.success = Status.findByValue(iprot.readI32());
                         struct.setSuccessIsSet(true);
                     }
                 } finally {
@@ -2241,11 +2155,8 @@ public class ThriftSourceProtocol {
             }
         }
 
-        private static <S extends org.apache.thrift.scheme.IScheme> S scheme(
-                org.apache.thrift.protocol.TProtocol proto) {
-            return (org.apache.thrift.scheme.StandardScheme.class.equals(proto.getScheme())
-                            ? STANDARD_SCHEME_FACTORY
-                            : TUPLE_SCHEME_FACTORY)
+        private static <S extends IScheme> S scheme(TProtocol proto) {
+            return (StandardScheme.class.equals(proto.getScheme()) ? STANDARD_SCHEME_FACTORY : TUPLE_SCHEME_FACTORY)
                     .getScheme();
         }
     }

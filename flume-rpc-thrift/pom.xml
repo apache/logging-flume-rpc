@@ -31,6 +31,9 @@
     <module.name>org.apache.flume.rpc.thrift</module.name>
     <spotbugs.maxAllowedViolations>23</spotbugs.maxAllowedViolations>
     <pmd.maxAllowedViolations>4</pmd.maxAllowedViolations>
+    <!-- Only used by the `compileThrift` profile -->
+    <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
+    <rewrite-logging-frameworks.version>3.32.0</rewrite-logging-frameworks.version>
   </properties>
 
   <dependencies>
@@ -56,8 +59,8 @@
       <artifactId>libthrift</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -97,8 +100,20 @@
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
+      <dependencies>
+        <!-- Lets OpenRewrite resolve the SLF4J types used by the freshly generated sources -->
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
+          <!--
+            ~ Downloads the Thrift source archive, verifies its checksum, builds the compiler and regenerates the sources.
+            ~ Requires CMake, a C++ compiler, Bison and Flex.
+            -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -111,43 +126,92 @@
                 <phase>generate-sources</phase>
                 <configuration>
                   <target>
-                    <echo file="target/compile-thrift.sh">LICENSE=src/main/thrift/aslv2
-                      THRIFT_DIR=src/main/thrift
-                      JAVA_DIR=target/generated-sources/thrift
-                      mkdir -p $JAVA_DIR 2&gt; /dev/null
-                      JSTATUS=$?
-                      if [ $JSTATUS -ne 0 ] ; then
-                      echo "Could not create $JAVA_DIR. Will not generate thrift files."
-                      exit $JSTATUS
-                      fi
-                      for THRIFT_FILE in `ls $THRIFT_DIR/*.thrift 2&gt; /dev/null`
-                      do
-                      thrift --gen java:generated_annotations=suppress -o $JAVA_DIR $THRIFT_FILE
-                      done
-                      SRC_DIR=$JAVA_DIR/gen-java/org/apache/flume/rpc/thrift/
-                      DEST_DIR=src/main/java/org/apache/flume/rpc/thrift
-                      if [ ! -d $DEST_DIR ] ; then
-                      mkdir $DEST_DIR 2&gt; /dev/null
-                      STATUS=$?
-                      if [ $STATUS -ne 0 ] ; then
-                      echo "Could not create $DEST_DIR. Will not generate thrift files."
-                      exit $STATUS
-                      fi
-                      fi
-                      for JAVA_FILE in `ls $SRC_DIR/*.java 2&gt; /dev/null`
-                      do
-                      echo $JAVA_FILE
-                      cat $LICENSE &gt; $JAVA_FILE.tmp
-                      cat $JAVA_FILE &gt;&gt; $JAVA_FILE.tmp
-                      mv $JAVA_FILE.tmp $JAVA_FILE
-                      cp $JAVA_FILE $DEST_DIR
-                      done
-                      rm -rf $JAVA_DIR</echo>
-                    <exec dir="${basedir}" executable="sh" failonerror="true">
-                      <arg line="target/compile-thrift.sh" />
+                    <property name="thrift.archive" value="${project.build.directory}/thrift-${thrift.version}.tar.gz" />
+                    <property name="thrift.src" value="${project.build.directory}/thrift-${thrift.version}" />
+                    <property name="thrift.build" value="${project.build.directory}/thrift-compiler" />
+                    <property name="thrift.gen" value="${project.build.directory}/generated-sources/thrift" />
+                    <get dest="${thrift.archive}" skipexisting="true" src="https://archive.apache.org/dist/thrift/${thrift.version}/thrift-${thrift.version}.tar.gz" />
+                    <checksum algorithm="SHA-256" file="${thrift.archive}" property="${thrift.sha256}" verifyProperty="thrift.checksum.matches" />
+                    <fail message="The checksum of ${thrift.archive} does not match `thrift.sha256`">
+                      <condition>
+                        <isfalse value="${thrift.checksum.matches}" />
+                      </condition>
+                    </fail>
+                    <untar compression="gzip" dest="${project.build.directory}" overwrite="false" src="${thrift.archive}" />
+                    <exec executable="cmake" failonerror="true">
+                      <arg value="-S" />
+                      <arg value="${thrift.src}" />
+                      <arg value="-B" />
+                      <arg value="${thrift.build}" />
+                      <arg value="-DCMAKE_BUILD_TYPE=Release" />
+                      <arg value="-DBUILD_COMPILER=ON" />
+                      <arg value="-DBUILD_LIBRARIES=OFF" />
+                      <arg value="-DBUILD_TESTING=OFF" />
                     </exec>
+                    <exec executable="cmake" failonerror="true">
+                      <arg value="--build" />
+                      <arg value="${thrift.build}" />
+                      <arg value="--parallel" />
+                    </exec>
+                    <delete dir="${thrift.gen}" />
+                    <mkdir dir="${thrift.gen}" />
+                    <apply executable="${thrift.build}/compiler/cpp/bin/thrift" failonerror="true">
+                      <arg value="--gen" />
+                      <arg value="java:generated_annotations=suppress" />
+                      <arg value="-o" />
+                      <arg value="${thrift.gen}" />
+                      <fileset dir="src/main/thrift" includes="*.thrift" />
+                    </apply>
+                    <!-- Spotless adds the license header and formats the sources -->
+                    <copy overwrite="true" todir="src/main/java/org/apache/flume/rpc/thrift">
+                      <fileset dir="${thrift.gen}/gen-java/org/apache/flume/rpc/thrift" includes="*.java" />
+                    </copy>
                   </target>
                 </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- The generated sources log through SLF4J and the Thrift compiler offers no option to change that: rewrite them to the Log4j API -->
+          <plugin>
+            <groupId>org.openrewrite.maven</groupId>
+            <artifactId>rewrite-maven-plugin</artifactId>
+            <version>${rewrite-maven-plugin.version}</version>
+            <configuration>
+              <activeRecipes>
+                <recipe>org.openrewrite.java.logging.log4j.Slf4jToLog4j</recipe>
+              </activeRecipes>
+              <!-- Only rewrite the sources: the POM already depends on `log4j-api` -->
+              <skipMavenParsing>true</skipMavenParsing>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.openrewrite.recipe</groupId>
+                <artifactId>rewrite-logging-frameworks</artifactId>
+                <version>${rewrite-logging-frameworks.version}</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <id>slf4j-to-log4j</id>
+                <goals>
+                  <!-- The freshly generated sources do not compile before the rewrite: do not fork the lifecycle -->
+                  <goal>runNoFork</goal>
+                </goals>
+                <phase>process-sources</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Format the generated and rewritten sources -->
+          <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>format-thrift</id>
+                <goals>
+                  <goal>apply</goal>
+                </goals>
+                <phase>process-sources</phase>
               </execution>
             </executions>
           </plugin>

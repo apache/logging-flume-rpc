@@ -16,38 +16,66 @@
  */
 package org.apache.flume.rpc.thrift;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TBaseHelper;
+import org.apache.thrift.TException;
+import org.apache.thrift.TFieldIdEnum;
+import org.apache.thrift.TFieldRequirementType;
+import org.apache.thrift.annotation.Nullable;
+import org.apache.thrift.meta_data.FieldMetaData;
+import org.apache.thrift.meta_data.FieldValueMetaData;
+import org.apache.thrift.meta_data.MapMetaData;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TField;
+import org.apache.thrift.protocol.TMap;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolException;
+import org.apache.thrift.protocol.TProtocolUtil;
+import org.apache.thrift.protocol.TStruct;
+import org.apache.thrift.protocol.TTupleProtocol;
+import org.apache.thrift.protocol.TType;
+import org.apache.thrift.scheme.IScheme;
+import org.apache.thrift.scheme.SchemeFactory;
+import org.apache.thrift.scheme.StandardScheme;
+import org.apache.thrift.scheme.TupleScheme;
+import org.apache.thrift.transport.TIOStreamTransport;
+
 @SuppressWarnings({"cast", "rawtypes", "serial", "unchecked", "unused"})
 public class ThriftFlumeEvent
-        implements org.apache.thrift.TBase<ThriftFlumeEvent, ThriftFlumeEvent._Fields>,
-                java.io.Serializable,
+        implements TBase<ThriftFlumeEvent, ThriftFlumeEvent._Fields>,
+                Serializable,
                 Cloneable,
                 Comparable<ThriftFlumeEvent> {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC =
-            new org.apache.thrift.protocol.TStruct("ThriftFlumeEvent");
+    private static final TStruct STRUCT_DESC = new TStruct("ThriftFlumeEvent");
 
-    private static final org.apache.thrift.protocol.TField HEADERS_FIELD_DESC =
-            new org.apache.thrift.protocol.TField("headers", org.apache.thrift.protocol.TType.MAP, (short) 1);
-    private static final org.apache.thrift.protocol.TField BODY_FIELD_DESC =
-            new org.apache.thrift.protocol.TField("body", org.apache.thrift.protocol.TType.STRING, (short) 2);
+    private static final TField HEADERS_FIELD_DESC = new TField("headers", TType.MAP, (short) 1);
+    private static final TField BODY_FIELD_DESC = new TField("body", TType.STRING, (short) 2);
 
-    private static final org.apache.thrift.scheme.SchemeFactory STANDARD_SCHEME_FACTORY =
-            new ThriftFlumeEventStandardSchemeFactory();
-    private static final org.apache.thrift.scheme.SchemeFactory TUPLE_SCHEME_FACTORY =
-            new ThriftFlumeEventTupleSchemeFactory();
+    private static final SchemeFactory STANDARD_SCHEME_FACTORY = new ThriftFlumeEventStandardSchemeFactory();
+    private static final SchemeFactory TUPLE_SCHEME_FACTORY = new ThriftFlumeEventTupleSchemeFactory();
 
-    public @org.apache.thrift.annotation.Nullable java.util.Map<java.lang.String, java.lang.String> headers; // required
-    public @org.apache.thrift.annotation.Nullable java.nio.ByteBuffer body; // required
+    public @Nullable Map<java.lang.String, java.lang.String> headers; // required
+    public @Nullable ByteBuffer body; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+    public enum _Fields implements TFieldIdEnum {
         HEADERS((short) 1, "headers"),
         BODY((short) 2, "body");
 
-        private static final java.util.Map<java.lang.String, _Fields> byName =
-                new java.util.HashMap<java.lang.String, _Fields>();
+        private static final Map<java.lang.String, _Fields> byName = new HashMap<java.lang.String, _Fields>();
 
         static {
-            for (_Fields field : java.util.EnumSet.allOf(_Fields.class)) {
+            for (_Fields field : EnumSet.allOf(_Fields.class)) {
                 byName.put(field.getFieldName(), field);
             }
         }
@@ -55,7 +83,7 @@ public class ThriftFlumeEvent
         /**
          * Find the _Fields constant that matches fieldId, or null if its not found.
          */
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         public static _Fields findByThriftId(int fieldId) {
             switch (fieldId) {
                 case 1: // HEADERS
@@ -80,7 +108,7 @@ public class ThriftFlumeEvent
         /**
          * Find the _Fields constant that matches name, or null if its not found.
          */
-        @org.apache.thrift.annotation.Nullable
+        @Nullable
         public static _Fields findByName(java.lang.String name) {
             return byName.get(name);
         }
@@ -105,39 +133,32 @@ public class ThriftFlumeEvent
     }
 
     // isset id assignments
-    public static final java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    public static final Map<_Fields, FieldMetaData> metaDataMap;
 
     static {
-        java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap =
-                new java.util.EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+        Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
         tmpMap.put(
                 _Fields.HEADERS,
-                new org.apache.thrift.meta_data.FieldMetaData(
+                new FieldMetaData(
                         "headers",
-                        org.apache.thrift.TFieldRequirementType.REQUIRED,
-                        new org.apache.thrift.meta_data.MapMetaData(
-                                org.apache.thrift.protocol.TType.MAP,
-                                new org.apache.thrift.meta_data.FieldValueMetaData(
-                                        org.apache.thrift.protocol.TType.STRING),
-                                new org.apache.thrift.meta_data.FieldValueMetaData(
-                                        org.apache.thrift.protocol.TType.STRING))));
+                        TFieldRequirementType.REQUIRED,
+                        new MapMetaData(
+                                TType.MAP,
+                                new FieldValueMetaData(TType.STRING),
+                                new FieldValueMetaData(TType.STRING))));
         tmpMap.put(
                 _Fields.BODY,
-                new org.apache.thrift.meta_data.FieldMetaData(
-                        "body",
-                        org.apache.thrift.TFieldRequirementType.REQUIRED,
-                        new org.apache.thrift.meta_data.FieldValueMetaData(
-                                org.apache.thrift.protocol.TType.STRING, true)));
-        metaDataMap = java.util.Collections.unmodifiableMap(tmpMap);
-        org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ThriftFlumeEvent.class, metaDataMap);
+                new FieldMetaData("body", TFieldRequirementType.REQUIRED, new FieldValueMetaData(TType.STRING, true)));
+        metaDataMap = Collections.unmodifiableMap(tmpMap);
+        FieldMetaData.addStructMetaDataMap(ThriftFlumeEvent.class, metaDataMap);
     }
 
     public ThriftFlumeEvent() {}
 
-    public ThriftFlumeEvent(java.util.Map<java.lang.String, java.lang.String> headers, java.nio.ByteBuffer body) {
+    public ThriftFlumeEvent(Map<java.lang.String, java.lang.String> headers, ByteBuffer body) {
         this();
         this.headers = headers;
-        this.body = org.apache.thrift.TBaseHelper.copyBinary(body);
+        this.body = TBaseHelper.copyBinary(body);
     }
 
     /**
@@ -145,12 +166,12 @@ public class ThriftFlumeEvent
      */
     public ThriftFlumeEvent(ThriftFlumeEvent other) {
         if (other.isSetHeaders()) {
-            java.util.Map<java.lang.String, java.lang.String> __this__headers =
-                    new java.util.HashMap<java.lang.String, java.lang.String>(other.headers);
+            Map<java.lang.String, java.lang.String> __this__headers =
+                    new HashMap<java.lang.String, java.lang.String>(other.headers);
             this.headers = __this__headers;
         }
         if (other.isSetBody()) {
-            this.body = org.apache.thrift.TBaseHelper.copyBinary(other.body);
+            this.body = TBaseHelper.copyBinary(other.body);
         }
     }
 
@@ -171,18 +192,17 @@ public class ThriftFlumeEvent
 
     public void putToHeaders(java.lang.String key, java.lang.String val) {
         if (this.headers == null) {
-            this.headers = new java.util.HashMap<java.lang.String, java.lang.String>();
+            this.headers = new HashMap<java.lang.String, java.lang.String>();
         }
         this.headers.put(key, val);
     }
 
-    @org.apache.thrift.annotation.Nullable
-    public java.util.Map<java.lang.String, java.lang.String> getHeaders() {
+    @Nullable
+    public Map<java.lang.String, java.lang.String> getHeaders() {
         return this.headers;
     }
 
-    public ThriftFlumeEvent setHeaders(
-            @org.apache.thrift.annotation.Nullable java.util.Map<java.lang.String, java.lang.String> headers) {
+    public ThriftFlumeEvent setHeaders(@Nullable Map<java.lang.String, java.lang.String> headers) {
         this.headers = headers;
         return this;
     }
@@ -203,21 +223,21 @@ public class ThriftFlumeEvent
     }
 
     public byte[] getBody() {
-        setBody(org.apache.thrift.TBaseHelper.rightSize(body));
+        setBody(TBaseHelper.rightSize(body));
         return body == null ? null : body.array();
     }
 
-    public java.nio.ByteBuffer bufferForBody() {
-        return org.apache.thrift.TBaseHelper.copyBinary(body);
+    public ByteBuffer bufferForBody() {
+        return TBaseHelper.copyBinary(body);
     }
 
     public ThriftFlumeEvent setBody(byte[] body) {
-        this.body = body == null ? (java.nio.ByteBuffer) null : java.nio.ByteBuffer.wrap(body.clone());
+        this.body = body == null ? (ByteBuffer) null : ByteBuffer.wrap(body.clone());
         return this;
     }
 
-    public ThriftFlumeEvent setBody(@org.apache.thrift.annotation.Nullable java.nio.ByteBuffer body) {
-        this.body = org.apache.thrift.TBaseHelper.copyBinary(body);
+    public ThriftFlumeEvent setBody(@Nullable ByteBuffer body) {
+        this.body = TBaseHelper.copyBinary(body);
         return this;
     }
 
@@ -237,13 +257,13 @@ public class ThriftFlumeEvent
     }
 
     @Override
-    public void setFieldValue(_Fields field, @org.apache.thrift.annotation.Nullable java.lang.Object value) {
+    public void setFieldValue(_Fields field, @Nullable java.lang.Object value) {
         switch (field) {
             case HEADERS:
                 if (value == null) {
                     unsetHeaders();
                 } else {
-                    setHeaders((java.util.Map<java.lang.String, java.lang.String>) value);
+                    setHeaders((Map<java.lang.String, java.lang.String>) value);
                 }
                 break;
 
@@ -254,14 +274,14 @@ public class ThriftFlumeEvent
                     if (value instanceof byte[]) {
                         setBody((byte[]) value);
                     } else {
-                        setBody((java.nio.ByteBuffer) value);
+                        setBody((ByteBuffer) value);
                     }
                 }
                 break;
         }
     }
 
-    @org.apache.thrift.annotation.Nullable
+    @Nullable
     @Override
     public java.lang.Object getFieldValue(_Fields field) {
         switch (field) {
@@ -343,7 +363,7 @@ public class ThriftFlumeEvent
             return lastComparison;
         }
         if (isSetHeaders()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.headers, other.headers);
+            lastComparison = TBaseHelper.compareTo(this.headers, other.headers);
             if (lastComparison != 0) {
                 return lastComparison;
             }
@@ -353,7 +373,7 @@ public class ThriftFlumeEvent
             return lastComparison;
         }
         if (isSetBody()) {
-            lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.body, other.body);
+            lastComparison = TBaseHelper.compareTo(this.body, other.body);
             if (lastComparison != 0) {
                 return lastComparison;
             }
@@ -361,19 +381,19 @@ public class ThriftFlumeEvent
         return 0;
     }
 
-    @org.apache.thrift.annotation.Nullable
+    @Nullable
     @Override
     public _Fields fieldForId(int fieldId) {
         return _Fields.findByThriftId(fieldId);
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    public void read(TProtocol iprot) throws TException {
         scheme(iprot).read(iprot, this);
     }
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    public void write(TProtocol oprot) throws TException {
         scheme(oprot).write(oprot, this);
     }
 
@@ -394,75 +414,68 @@ public class ThriftFlumeEvent
         if (this.body == null) {
             sb.append("null");
         } else {
-            org.apache.thrift.TBaseHelper.toString(this.body, sb);
+            TBaseHelper.toString(this.body, sb);
         }
         first = false;
         sb.append(")");
         return sb.toString();
     }
 
-    public void validate() throws org.apache.thrift.TException {
+    public void validate() throws TException {
         // check for required fields
         if (headers == null) {
-            throw new org.apache.thrift.protocol.TProtocolException(
-                    "Required field 'headers' was not present! Struct: " + toString());
+            throw new TProtocolException("Required field 'headers' was not present! Struct: " + toString());
         }
         if (body == null) {
-            throw new org.apache.thrift.protocol.TProtocolException(
-                    "Required field 'body' was not present! Struct: " + toString());
+            throw new TProtocolException("Required field 'body' was not present! Struct: " + toString());
         }
         // check for sub-struct validity
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+    private void writeObject(ObjectOutputStream out) throws IOException {
         try {
-            write(new org.apache.thrift.protocol.TCompactProtocol(
-                    new org.apache.thrift.transport.TIOStreamTransport(out)));
-        } catch (org.apache.thrift.TException te) {
-            throw new java.io.IOException(te);
+            write(new TCompactProtocol(new TIOStreamTransport(out)));
+        } catch (TException te) {
+            throw new IOException(te);
         }
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, java.lang.ClassNotFoundException {
+    private void readObject(ObjectInputStream in) throws IOException, java.lang.ClassNotFoundException {
         try {
-            read(new org.apache.thrift.protocol.TCompactProtocol(
-                    new org.apache.thrift.transport.TIOStreamTransport(in)));
-        } catch (org.apache.thrift.TException te) {
-            throw new java.io.IOException(te);
+            read(new TCompactProtocol(new TIOStreamTransport(in)));
+        } catch (TException te) {
+            throw new IOException(te);
         }
     }
 
-    private static class ThriftFlumeEventStandardSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+    private static class ThriftFlumeEventStandardSchemeFactory implements SchemeFactory {
         @Override
         public ThriftFlumeEventStandardScheme getScheme() {
             return new ThriftFlumeEventStandardScheme();
         }
     }
 
-    private static class ThriftFlumeEventStandardScheme
-            extends org.apache.thrift.scheme.StandardScheme<ThriftFlumeEvent> {
+    private static class ThriftFlumeEventStandardScheme extends StandardScheme<ThriftFlumeEvent> {
 
         @Override
-        public void read(org.apache.thrift.protocol.TProtocol iprot, ThriftFlumeEvent struct)
-                throws org.apache.thrift.TException {
+        public void read(TProtocol iprot, ThriftFlumeEvent struct) throws TException {
             iprot.incrementRecursionDepth();
             try {
-                org.apache.thrift.protocol.TField schemeField;
+                TField schemeField;
                 iprot.readStructBegin();
                 while (true) {
                     schemeField = iprot.readFieldBegin();
-                    if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+                    if (schemeField.type == TType.STOP) {
                         break;
                     }
                     switch (schemeField.id) {
                         case 1: // HEADERS
-                            if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
+                            if (schemeField.type == TType.MAP) {
                                 {
-                                    org.apache.thrift.protocol.TMap _map0 = iprot.readMapBegin();
-                                    struct.headers =
-                                            new java.util.HashMap<java.lang.String, java.lang.String>(2 * _map0.size);
-                                    @org.apache.thrift.annotation.Nullable java.lang.String _key1;
-                                    @org.apache.thrift.annotation.Nullable java.lang.String _val2;
+                                    TMap _map0 = iprot.readMapBegin();
+                                    struct.headers = new HashMap<java.lang.String, java.lang.String>(2 * _map0.size);
+                                    @Nullable java.lang.String _key1;
+                                    @Nullable java.lang.String _val2;
                                     for (int _i3 = 0; _i3 < _map0.size; ++_i3) {
                                         _key1 = iprot.readString();
                                         _val2 = iprot.readString();
@@ -472,19 +485,19 @@ public class ThriftFlumeEvent
                                 }
                                 struct.setHeadersIsSet(true);
                             } else {
-                                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                TProtocolUtil.skip(iprot, schemeField.type);
                             }
                             break;
                         case 2: // BODY
-                            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                            if (schemeField.type == TType.STRING) {
                                 struct.body = iprot.readBinary();
                                 struct.setBodyIsSet(true);
                             } else {
-                                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                                TProtocolUtil.skip(iprot, schemeField.type);
                             }
                             break;
                         default:
-                            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+                            TProtocolUtil.skip(iprot, schemeField.type);
                     }
                     iprot.readFieldEnd();
                 }
@@ -498,19 +511,15 @@ public class ThriftFlumeEvent
         }
 
         @Override
-        public void write(org.apache.thrift.protocol.TProtocol oprot, ThriftFlumeEvent struct)
-                throws org.apache.thrift.TException {
+        public void write(TProtocol oprot, ThriftFlumeEvent struct) throws TException {
             struct.validate();
 
             oprot.writeStructBegin(STRUCT_DESC);
             if (struct.headers != null) {
                 oprot.writeFieldBegin(HEADERS_FIELD_DESC);
                 {
-                    oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(
-                            org.apache.thrift.protocol.TType.STRING,
-                            org.apache.thrift.protocol.TType.STRING,
-                            struct.headers.size()));
-                    for (java.util.Map.Entry<java.lang.String, java.lang.String> _iter4 : struct.headers.entrySet()) {
+                    oprot.writeMapBegin(new TMap(TType.STRING, TType.STRING, struct.headers.size()));
+                    for (Map.Entry<java.lang.String, java.lang.String> _iter4 : struct.headers.entrySet()) {
                         oprot.writeString(_iter4.getKey());
                         oprot.writeString(_iter4.getValue());
                     }
@@ -528,22 +537,21 @@ public class ThriftFlumeEvent
         }
     }
 
-    private static class ThriftFlumeEventTupleSchemeFactory implements org.apache.thrift.scheme.SchemeFactory {
+    private static class ThriftFlumeEventTupleSchemeFactory implements SchemeFactory {
         @Override
         public ThriftFlumeEventTupleScheme getScheme() {
             return new ThriftFlumeEventTupleScheme();
         }
     }
 
-    private static class ThriftFlumeEventTupleScheme extends org.apache.thrift.scheme.TupleScheme<ThriftFlumeEvent> {
+    private static class ThriftFlumeEventTupleScheme extends TupleScheme<ThriftFlumeEvent> {
 
         @Override
-        public void write(org.apache.thrift.protocol.TProtocol prot, ThriftFlumeEvent struct)
-                throws org.apache.thrift.TException {
-            org.apache.thrift.protocol.TTupleProtocol oprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
+        public void write(TProtocol prot, ThriftFlumeEvent struct) throws TException {
+            TTupleProtocol oprot = (TTupleProtocol) prot;
             {
                 oprot.writeI32(struct.headers.size());
-                for (java.util.Map.Entry<java.lang.String, java.lang.String> _iter5 : struct.headers.entrySet()) {
+                for (Map.Entry<java.lang.String, java.lang.String> _iter5 : struct.headers.entrySet()) {
                     oprot.writeString(_iter5.getKey());
                     oprot.writeString(_iter5.getValue());
                 }
@@ -552,17 +560,15 @@ public class ThriftFlumeEvent
         }
 
         @Override
-        public void read(org.apache.thrift.protocol.TProtocol prot, ThriftFlumeEvent struct)
-                throws org.apache.thrift.TException {
+        public void read(TProtocol prot, ThriftFlumeEvent struct) throws TException {
             prot.incrementRecursionDepth();
             try {
-                org.apache.thrift.protocol.TTupleProtocol iprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
+                TTupleProtocol iprot = (TTupleProtocol) prot;
                 {
-                    org.apache.thrift.protocol.TMap _map6 = iprot.readMapBegin(
-                            org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING);
-                    struct.headers = new java.util.HashMap<java.lang.String, java.lang.String>(2 * _map6.size);
-                    @org.apache.thrift.annotation.Nullable java.lang.String _key7;
-                    @org.apache.thrift.annotation.Nullable java.lang.String _val8;
+                    TMap _map6 = iprot.readMapBegin(TType.STRING, TType.STRING);
+                    struct.headers = new HashMap<java.lang.String, java.lang.String>(2 * _map6.size);
+                    @Nullable java.lang.String _key7;
+                    @Nullable java.lang.String _val8;
                     for (int _i9 = 0; _i9 < _map6.size; ++_i9) {
                         _key7 = iprot.readString();
                         _val8 = iprot.readString();
@@ -578,10 +584,8 @@ public class ThriftFlumeEvent
         }
     }
 
-    private static <S extends org.apache.thrift.scheme.IScheme> S scheme(org.apache.thrift.protocol.TProtocol proto) {
-        return (org.apache.thrift.scheme.StandardScheme.class.equals(proto.getScheme())
-                        ? STANDARD_SCHEME_FACTORY
-                        : TUPLE_SCHEME_FACTORY)
+    private static <S extends IScheme> S scheme(TProtocol proto) {
+        return (StandardScheme.class.equals(proto.getScheme()) ? STANDARD_SCHEME_FACTORY : TUPLE_SCHEME_FACTORY)
                 .getScheme();
     }
 }

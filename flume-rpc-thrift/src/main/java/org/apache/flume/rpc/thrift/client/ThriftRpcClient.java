@@ -54,16 +54,16 @@ import org.apache.flume.api.SSLContextAwareAbstractRpcClient;
 import org.apache.flume.rpc.thrift.Status;
 import org.apache.flume.rpc.thrift.ThriftFlumeEvent;
 import org.apache.flume.rpc.thrift.ThriftSourceProtocol;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.layered.TFastFramedTransport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThriftRpcClient.class);
+    private static final Logger LOGGER = LogManager.getLogger(ThriftRpcClient.class);
 
     /**
      * Config param for the thrift protocol to use.

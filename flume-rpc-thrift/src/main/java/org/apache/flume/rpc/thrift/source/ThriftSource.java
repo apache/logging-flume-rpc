@@ -50,6 +50,8 @@ import org.apache.flume.rpc.thrift.Status;
 import org.apache.flume.rpc.thrift.ThriftFlumeEvent;
 import org.apache.flume.rpc.thrift.ThriftSourceProtocol;
 import org.apache.flume.source.SslContextAwareAbstractSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -65,12 +67,10 @@ import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TTransportFactory;
 import org.apache.thrift.transport.layered.TFastFramedTransport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ThriftSource extends SslContextAwareAbstractSource implements Configurable, EventDrivenSource {
 
-    public static final Logger logger = LoggerFactory.getLogger(ThriftSource.class);
+    public static final Logger logger = LogManager.getLogger(ThriftSource.class);
 
     /**
      * Config param for the maximum number of threads this source should use to
