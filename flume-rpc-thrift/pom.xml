@@ -130,7 +130,7 @@
                     <property name="thrift.src" value="${project.build.directory}/thrift-${thrift.version}" />
                     <property name="thrift.build" value="${project.build.directory}/thrift-compiler" />
                     <property name="thrift.gen" value="${project.build.directory}/generated-sources/thrift" />
-                    <get dest="${thrift.archive}" skipexisting="true" src="https://archive.apache.org/dist/thrift/${thrift.version}/thrift-${thrift.version}.tar.gz" />
+                    <get dest="${thrift.archive}" skipexisting="true" src="https://dlcdn.apache.org/thrift/${thrift.version}/thrift-${thrift.version}.tar.gz" />
                     <checksum algorithm="SHA-256" file="${thrift.archive}" property="${thrift.sha256}" verifyProperty="thrift.checksum.matches" />
                     <fail message="The checksum of ${thrift.archive} does not match `thrift.sha256`">
                       <condition>
