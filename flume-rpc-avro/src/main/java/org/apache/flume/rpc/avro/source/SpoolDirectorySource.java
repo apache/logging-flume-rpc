@@ -21,7 +21,6 @@ import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants
 import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.BATCH_SIZE;
 import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.BUFFER_MAX_LINE_LENGTH;
 import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.CONSUME_ORDER;
-import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.ConsumeOrder;
 import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DECODE_ERROR_POLICY;
 import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_BASENAME_HEADER;
 import static org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.DEFAULT_BASENAME_HEADER_KEY;
@@ -79,6 +78,7 @@ import org.apache.flume.rpc.avro.serialization.ReliableSpoolingFileEventReader;
 import org.apache.flume.serialization.DecodeErrorPolicy;
 import org.apache.flume.serialization.LineDeserializer;
 import org.apache.flume.source.AbstractSource;
+import org.apache.flume.source.SpoolDirectorySourceConfigurationConstants.ConsumeOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -71,7 +71,7 @@ github:
       required_status_checks:
         # The GitHub Actions app
         - app_slug: github-actions
-          name: "build (ubuntu-latest)"
+          name: "build / build (ubuntu-latest)"
         # The GitHub Advanced Security app
         - app_slug: github-advanced-security
           name: "CodeQL"

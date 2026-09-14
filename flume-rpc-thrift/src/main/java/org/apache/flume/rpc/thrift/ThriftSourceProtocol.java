@@ -32,7 +32,7 @@ import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
 import org.apache.thrift.scheme.StandardScheme;
 import org.apache.thrift.scheme.TupleScheme;
-import org.apache.thrift.server.AbstractNonblockingServer;
+import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -346,8 +346,7 @@ public class ThriftSourceProtocol {
                 return new append_args();
             }
 
-            public AsyncMethodCallback<Status> getResultHandler(
-                    final AbstractNonblockingServer.AsyncFrameBuffer fb, final int seqid) {
+            public AsyncMethodCallback<Status> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
                 final org.apache.thrift.AsyncProcessFunction fcall = this;
                 return new AsyncMethodCallback<Status>() {
                     public void onComplete(Status o) {
@@ -403,8 +402,7 @@ public class ThriftSourceProtocol {
                 return new appendBatch_args();
             }
 
-            public AsyncMethodCallback<Status> getResultHandler(
-                    final AbstractNonblockingServer.AsyncFrameBuffer fb, final int seqid) {
+            public AsyncMethodCallback<Status> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
                 final org.apache.thrift.AsyncProcessFunction fcall = this;
                 return new AsyncMethodCallback<Status>() {
                     public void onComplete(Status o) {
