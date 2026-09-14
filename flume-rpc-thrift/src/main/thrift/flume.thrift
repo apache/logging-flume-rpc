@@ -17,7 +17,7 @@
  * under the License.
  */
 
-namespace java org.apache.flume.thrift
+namespace java org.apache.flume.rpc.thrift
 
 struct ThriftFlumeEvent {
   1: required map <string, string> headers,

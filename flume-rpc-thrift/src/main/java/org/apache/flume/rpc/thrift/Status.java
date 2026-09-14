@@ -31,6 +31,7 @@ public enum Status implements org.apache.thrift.TEnum {
     /**
      * Get the integer value of this enum value, as defined in the Thrift IDL.
      */
+    @Override
     public int getValue() {
         return value;
     }
@@ -39,6 +40,7 @@ public enum Status implements org.apache.thrift.TEnum {
      * Find a the enum type by its integer value, as defined in the Thrift IDL.
      * @return null if the value is not found.
      */
+    @org.apache.thrift.annotation.Nullable
     public static Status findByValue(int value) {
         switch (value) {
             case 0:
