@@ -451,8 +451,25 @@ public class ReliableSpoolingFileEventReader implements ReliableEventReader {
     @Override
     public void close() throws IOException {
         if (currentFile.isPresent()) {
-            currentFile.get().getDeserializer().close();
+            FileInfo fileInfo = currentFile.get();
             currentFile = Optional.absent();
+            closeFileInfo(fileInfo);
+        }
+    }
+
+    /**
+     * Releases the resources held by a file being consumed: the deserializer (and its underlying input stream)
+     * and the position tracker, which keeps the meta file open for append.
+     * <p>
+     * Closing the tracker explicitly does not rely on the deserializer propagating the close call
+     * to the tracker, and it matters on Windows, where an open file cannot be deleted or renamed.
+     * </p>
+     */
+    private static void closeFileInfo(FileInfo fileInfo) throws IOException {
+        try {
+            fileInfo.getDeserializer().close();
+        } finally {
+            fileInfo.getTracker().close();
         }
     }
 
@@ -482,7 +499,7 @@ public class ReliableSpoolingFileEventReader implements ReliableEventReader {
 
         File fileToRoll = new File(currentFile.get().getFile().getAbsolutePath());
 
-        currentFile.get().getDeserializer().close();
+        closeFileInfo(currentFile.get());
 
         // Verify that spooling assumptions hold
         if (fileToRoll.lastModified() != currentFile.get().getLastModified()) {
@@ -692,12 +709,17 @@ public class ReliableSpoolingFileEventReader implements ReliableEventReader {
                     tracker.getTarget(),
                     nextPath);
 
-            ResettableInputStream in = new ResettableFileInputStream(
-                    file, tracker, ResettableFileInputStream.DEFAULT_BUF_SIZE, inputCharset, decodeErrorPolicy);
-            EventDeserializer deserializer =
-                    EventDeserializerFactory.getInstance(deserializerType, deserializerContext, in);
+            EventDeserializer deserializer;
+            try {
+                ResettableInputStream in = new ResettableFileInputStream(
+                        file, tracker, ResettableFileInputStream.DEFAULT_BUF_SIZE, inputCharset, decodeErrorPolicy);
+                deserializer = EventDeserializerFactory.getInstance(deserializerType, deserializerContext, in);
+            } catch (IOException | RuntimeException e) {
+                tracker.close();
+                throw e;
+            }
 
-            return Optional.of(new FileInfo(file, deserializer));
+            return Optional.of(new FileInfo(file, tracker, deserializer));
         } catch (FileNotFoundException e) {
             // File could have been deleted in the interim
             logger.warn("Could not find file: " + file, e);
@@ -722,13 +744,19 @@ public class ReliableSpoolingFileEventReader implements ReliableEventReader {
         private final File file;
         private final long length;
         private final long lastModified;
+        private final PositionTracker tracker;
         private final EventDeserializer deserializer;
 
-        public FileInfo(File file, EventDeserializer deserializer) {
+        public FileInfo(File file, PositionTracker tracker, EventDeserializer deserializer) {
             this.file = file;
             this.length = file.length();
             this.lastModified = file.lastModified();
+            this.tracker = tracker;
             this.deserializer = deserializer;
+        }
+
+        public PositionTracker getTracker() {
+            return tracker;
         }
 
         public long getLength() {
