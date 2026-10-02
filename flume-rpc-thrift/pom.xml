@@ -128,7 +128,7 @@
                   <target>
                     <property name="thrift.archive" value="${project.build.directory}/thrift-${thrift.version}.tar.gz" />
                     <property name="thrift.src" value="${project.build.directory}/thrift-${thrift.version}" />
-                    <property name="thrift.build" value="${project.build.directory}/thrift-compiler" />
+                    <property name="thrift.build" value="${project.build.directory}/thrift-compiler-${thrift.version}" />
                     <property name="thrift.gen" value="${project.build.directory}/generated-sources/thrift" />
                     <get dest="${thrift.archive}" skipexisting="true" src="https://dlcdn.apache.org/thrift/${thrift.version}/thrift-${thrift.version}.tar.gz" />
                     <checksum algorithm="SHA-256" file="${thrift.archive}" property="${thrift.sha256}" verifyProperty="thrift.checksum.matches" />
