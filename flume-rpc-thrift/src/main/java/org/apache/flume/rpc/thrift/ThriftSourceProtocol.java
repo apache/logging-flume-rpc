@@ -1654,7 +1654,8 @@ public class ThriftSourceProtocol {
                                 if (schemeField.type == TType.LIST) {
                                     {
                                         TList _list10 = iprot.readListBegin();
-                                        struct.events = new ArrayList<ThriftFlumeEvent>(_list10.size);
+                                        struct.events =
+                                                new ArrayList<ThriftFlumeEvent>(TBaseHelper.preallocSize(_list10.size));
                                         @Nullable ThriftFlumeEvent _elem11;
                                         for (int _i12 = 0; _i12 < _list10.size; ++_i12) {
                                             _elem11 = new ThriftFlumeEvent();
@@ -1739,7 +1740,7 @@ public class ThriftSourceProtocol {
                     if (incoming.get(0)) {
                         {
                             TList _list15 = iprot.readListBegin(TType.STRUCT);
-                            struct.events = new ArrayList<ThriftFlumeEvent>(_list15.size);
+                            struct.events = new ArrayList<ThriftFlumeEvent>(TBaseHelper.preallocSize(_list15.size));
                             @Nullable ThriftFlumeEvent _elem16;
                             for (int _i17 = 0; _i17 < _list15.size; ++_i17) {
                                 _elem16 = new ThriftFlumeEvent();

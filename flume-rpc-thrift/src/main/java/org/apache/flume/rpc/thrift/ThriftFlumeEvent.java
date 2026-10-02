@@ -473,7 +473,8 @@ public class ThriftFlumeEvent
                             if (schemeField.type == TType.MAP) {
                                 {
                                     TMap _map0 = iprot.readMapBegin();
-                                    struct.headers = new HashMap<java.lang.String, java.lang.String>(2 * _map0.size);
+                                    struct.headers = new HashMap<java.lang.String, java.lang.String>(
+                                            TBaseHelper.preallocSize(2 * _map0.size));
                                     @Nullable java.lang.String _key1;
                                     @Nullable java.lang.String _val2;
                                     for (int _i3 = 0; _i3 < _map0.size; ++_i3) {
@@ -566,7 +567,8 @@ public class ThriftFlumeEvent
                 TTupleProtocol iprot = (TTupleProtocol) prot;
                 {
                     TMap _map6 = iprot.readMapBegin(TType.STRING, TType.STRING);
-                    struct.headers = new HashMap<java.lang.String, java.lang.String>(2 * _map6.size);
+                    struct.headers =
+                            new HashMap<java.lang.String, java.lang.String>(TBaseHelper.preallocSize(2 * _map6.size));
                     @Nullable java.lang.String _key7;
                     @Nullable java.lang.String _val8;
                     for (int _i9 = 0; _i9 < _map6.size; ++_i9) {
