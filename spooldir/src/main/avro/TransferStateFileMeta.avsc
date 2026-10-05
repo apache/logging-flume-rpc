@@ -1,0 +1,8 @@
+{
+  "namespace": "org.apache.flume.source.spooldir",
+  "type": "record",
+  "name": "TransferStateFileMeta",
+  "fields": [
+    {"name": "offset", "type": "long"}
+  ]
+}

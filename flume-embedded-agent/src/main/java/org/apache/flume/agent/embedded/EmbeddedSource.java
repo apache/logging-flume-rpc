@@ -18,11 +18,11 @@ package org.apache.flume.agent.embedded;
 
 import java.util.List;
 import org.apache.flume.Context;
-import org.apache.flume.Event;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.annotations.InterfaceAudience;
 import org.apache.flume.annotations.InterfaceStability;
 import org.apache.flume.conf.Configurable;
+import org.apache.flume.event.Event;
 import org.apache.flume.exception.ChannelException;
 import org.apache.flume.source.AbstractSource;
 

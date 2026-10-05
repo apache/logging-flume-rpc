@@ -33,7 +33,8 @@
   <inceptionYear>2026</inceptionYear>
 
   <modules>
-    <module>flume-rpc-avro</module>
+    <module>avro</module>
+    <module>spooldir</module>
     <module>thrift</module>
     <module>flume-embedded-agent</module>
   </modules>
@@ -82,7 +83,7 @@
         <artifactId>avro-ipc-netty</artifactId>
         <version>${avro.version}</version>
         <exclusions>
-          <!-- `flume-rpc-avro` depends on `netty-all`, managed by `flume-parent`: skip the older Netty modules pulled in by Avro -->
+          <!-- The Avro modules depend on `netty-all`, managed by `flume-parent`: skip the older Netty modules pulled in by Avro -->
           <exclusion>
             <groupId>io.netty</groupId>
             <artifactId>*</artifactId>
