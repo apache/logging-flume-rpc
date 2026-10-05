@@ -16,6 +16,8 @@
  */
 package org.apache.flume.client.avro;
 
+import aQute.bnd.annotation.Resolution;
+import aQute.bnd.annotation.spi.ServiceProvider;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.compression.JZlibDecoder;
 import io.netty.handler.codec.compression.JZlibEncoder;
@@ -59,10 +61,12 @@ import org.apache.avro.ipc.Transceiver;
 import org.apache.avro.ipc.netty.NettyTransceiver;
 import org.apache.avro.ipc.specific.SpecificRequestor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.api.AbstractRpcClient;
+import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcDeliveryException;
-import org.apache.flume.api.SSLContextAwareAbstractRpcClient;
+import org.apache.flume.client.spi.AbstractRpcClient;
+import org.apache.flume.client.spi.RpcClientProvider;
+import org.apache.flume.client.spi.SSLContextAwareAbstractRpcClient;
 import org.apache.flume.event.Event;
 import org.apache.flume.source.avro.AvroFlumeEvent;
 import org.apache.flume.source.avro.AvroSourceProtocol;
@@ -427,7 +431,6 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
      * @param properties The properties to instantiate the client with.
      * @return
      */
-    @Override
     public synchronized void configure(Properties properties) throws IOException {
         stateLock.lock();
         try {
@@ -637,6 +640,25 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
             return new X509Certificate[0];
+        }
+    }
+
+    /**
+     * Provides the {@value RpcClientConfigurationConstants#AVRO_CLIENT_TYPE} client type.
+     */
+    @ServiceProvider(value = RpcClientProvider.class, resolution = Resolution.OPTIONAL)
+    public static final class Provider implements RpcClientProvider {
+
+        @Override
+        public String getName() {
+            return RpcClientConfigurationConstants.AVRO_CLIENT_TYPE;
+        }
+
+        @Override
+        public RpcClient create(Properties properties) throws IOException {
+            NettyAvroRpcClient client = new NettyAvroRpcClient();
+            client.configure(properties);
+            return client;
         }
     }
 }

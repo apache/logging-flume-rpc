@@ -16,6 +16,8 @@
  */
 package org.apache.flume.client.thrift;
 
+import aQute.bnd.annotation.Resolution;
+import aQute.bnd.annotation.spi.ServiceProvider;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -45,11 +47,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
-import org.apache.flume.api.AbstractRpcClient;
-import org.apache.flume.api.HostInfo;
+import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcDeliveryException;
-import org.apache.flume.api.SSLContextAwareAbstractRpcClient;
+import org.apache.flume.client.spi.AbstractRpcClient;
+import org.apache.flume.client.spi.HostInfo;
+import org.apache.flume.client.spi.RpcClientProvider;
+import org.apache.flume.client.spi.SSLContextAwareAbstractRpcClient;
 import org.apache.flume.event.Event;
 import org.apache.flume.thrift.Status;
 import org.apache.flume.thrift.ThriftFlumeEvent;
@@ -263,7 +267,6 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
         }
     }
 
-    @Override
     public void configure(Properties properties) throws IOException {
         if (isActive()) {
             throw new IllegalStateException("Attempting to re-configured an already " + "configured client!");
@@ -543,6 +546,27 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
             return new TSocket(socket);
         } catch (Exception e) {
             throw new IOException("Could not connect to " + host + " on port " + port, e);
+        }
+    }
+
+    /**
+     * Provides the {@value RpcClientConfigurationConstants#THRIFT_CLIENT_TYPE} client type.
+     */
+    @ServiceProvider(value = RpcClientProvider.class, resolution = Resolution.OPTIONAL)
+    public static final class Provider implements RpcClientProvider {
+
+        @Override
+        public String getName() {
+            return RpcClientConfigurationConstants.THRIFT_CLIENT_TYPE;
+        }
+
+        @Override
+        public RpcClient create(Properties properties) throws IOException {
+            boolean kerberos =
+                    Boolean.parseBoolean(properties.getProperty(RpcClientConfigurationConstants.KERBEROS_KEY, "false"));
+            ThriftRpcClient client = kerberos ? new SecureThriftRpcClient() : new ThriftRpcClient();
+            client.configure(properties);
+            return client;
         }
     }
 }
