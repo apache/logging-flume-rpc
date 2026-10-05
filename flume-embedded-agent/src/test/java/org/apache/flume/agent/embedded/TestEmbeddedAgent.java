@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.avro.ipc.Responder;
 import org.apache.avro.ipc.netty.NettyServer;
 import org.apache.avro.ipc.specific.SpecificResponder;
-import org.apache.flume.Event;
+import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.avro.AvroFlumeEvent;
 import org.apache.flume.source.avro.AvroSourceProtocol;
