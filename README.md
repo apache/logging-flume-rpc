@@ -39,7 +39,8 @@ Apache Flume RPC provides the components that let Flume agents and applications
 exchange events over the network:
 
 * `flume-rpc-avro`: the Avro RPC client, source and sink,
-* `flume-rpc-thrift`: the Thrift RPC client, source and sink,
+* `flume-thrift-client`: the Thrift RPC client, which only depends on `flume-client`,
+* `flume-thrift-source` and `flume-thrift-sink`: the Thrift source and sink,
 * `flume-embedded-agent`: a stable public API for embedding a Flume agent in an application.
 
 Apache Flume RPC is open-sourced under the Apache Software Foundation License v2.0.

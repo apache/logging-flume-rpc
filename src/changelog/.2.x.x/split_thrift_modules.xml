@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="https://logging.apache.org/xml/ns"
+       xsi:schemaLocation="https://logging.apache.org/xml/ns https://logging.apache.org/xml/ns/log4j-changelog-0.xsd"
+       type="changed">
+  <description format="asciidoc">Split `flume-rpc-thrift` into `flume-thrift-client`, `flume-thrift-source` and `flume-thrift-sink`, so Thrift clients only depend on `flume-client`. The classes move to the `org.apache.flume.client.thrift`, `org.apache.flume.source.thrift` and `org.apache.flume.sink.thrift` packages</description>
+</entry>
