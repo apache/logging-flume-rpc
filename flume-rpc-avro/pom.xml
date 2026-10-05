@@ -48,28 +48,28 @@
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-sdk</artifactId>
+      <artifactId>flume-sdk</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-sdk-test</artifactId>
+      <artifactId>flume-sdk-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-configuration</artifactId>
+      <artifactId>flume-configuration</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-core</artifactId>
+      <artifactId>flume-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-node</artifactId>
+      <artifactId>flume-node</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.flume.flume-ng-sources</groupId>
+      <groupId>org.apache.flume</groupId>
       <artifactId>flume-syslog-source</artifactId>
       <scope>test</scope>
     </dependency>
