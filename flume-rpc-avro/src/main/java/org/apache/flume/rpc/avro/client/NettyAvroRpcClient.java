@@ -64,7 +64,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcDeliveryException;
-import org.apache.flume.client.spi.AbstractRpcClient;
 import org.apache.flume.client.spi.RpcClientProvider;
 import org.apache.flume.client.spi.SSLContextAwareAbstractRpcClient;
 import org.apache.flume.event.Event;
@@ -441,7 +440,7 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
             stateLock.unlock();
         }
 
-        batchSize = AbstractRpcClient.parseBatchSize(properties);
+        batchSize = parseBatchSize(properties);
 
         // host and port
         String hostNames = properties.getProperty(RpcClientConfigurationConstants.CONFIG_HOSTS);

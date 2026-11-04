@@ -30,7 +30,7 @@
   <properties>
     <module.name>org.apache.flume.rpc.avro</module.name>
     <spotbugs.maxAllowedViolations>38</spotbugs.maxAllowedViolations>
-    <pmd.maxAllowedViolations>14</pmd.maxAllowedViolations>
+    <pmd.maxAllowedViolations>13</pmd.maxAllowedViolations>
   </properties>
   <dependencies>
     <dependency>
