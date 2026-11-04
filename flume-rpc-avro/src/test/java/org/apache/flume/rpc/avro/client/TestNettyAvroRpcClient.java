@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.avro.ipc.Server;
-import org.apache.flume.FlumeException;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.event.Event;
@@ -49,6 +48,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple request
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test
     public void testOKServerSimple() throws IOException {
@@ -58,6 +58,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple request with compression on the server and client with compression level 6
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test
     public void testOKServerSimpleCompressionLevel6() throws IOException {
@@ -69,6 +70,7 @@ public class TestNettyAvroRpcClient {
      *
      * Compression level 0 = no compression
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test
     public void testOKServerSimpleCompressionLevel0() throws IOException {
@@ -78,8 +80,9 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple request with compression on the client only
      * @throws IOException
+     * @throws RpcDeliveryException
      */
-    @Test(expected = org.apache.flume.EventDeliveryException.class)
+    @Test(expected = RpcDeliveryException.class)
     public void testOKServerSimpleCompressionClientOnly() throws IOException {
         RpcTestUtils.handlerSimpleAppendTest(new OKAvroHandler(), false, true, 6);
     }
@@ -87,8 +90,9 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple request with compression on the server only
      * @throws IOException
+     * @throws RpcDeliveryException
      */
-    @Test(expected = org.apache.flume.EventDeliveryException.class)
+    @Test(expected = RpcDeliveryException.class)
     public void testOKServerSimpleCompressionServerOnly() throws IOException {
         RpcTestUtils.handlerSimpleAppendTest(new OKAvroHandler(), true, false, 6);
     }
@@ -96,6 +100,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test
     public void testOKServerBatch() throws IOException {
@@ -105,6 +110,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request with compression deflate level 0
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test
     public void testOKServerBatchCompressionLevel0() throws IOException {
@@ -114,6 +120,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request with compression deflate level 6
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test
     public void testOKServerBatchCompressionLevel6() throws IOException {
@@ -123,8 +130,9 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request where the server only is using compression
      * @throws IOException
+     * @throws RpcDeliveryException
      */
-    @Test(expected = org.apache.flume.EventDeliveryException.class)
+    @Test(expected = RpcDeliveryException.class)
     public void testOKServerBatchCompressionServerOnly() throws IOException {
         RpcTestUtils.handlerBatchAppendTest(new OKAvroHandler(), true, false, 6);
     }
@@ -132,8 +140,9 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request where the client only is using compression
      * @throws IOException
+     * @throws RpcDeliveryException
      */
-    @Test(expected = org.apache.flume.EventDeliveryException.class)
+    @Test(expected = RpcDeliveryException.class)
     public void testOKServerBatchCompressionClientOnly() throws IOException {
         RpcTestUtils.handlerBatchAppendTest(new OKAvroHandler(), false, true, 6);
     }
@@ -141,10 +150,10 @@ public class TestNettyAvroRpcClient {
     /**
      * Try to connect to a closed port.
      * Note: this test tries to connect to port 1 on localhost.
-     * @throws FlumeException
+     * @throws IOException
      */
-    @Test(expected = FlumeException.class)
-    public void testUnableToConnect() throws FlumeException {
+    @Test(expected = IOException.class)
+    public void testUnableToConnect() throws IOException {
         @SuppressWarnings("unused")
         NettyAvroRpcClient client = new NettyAvroRpcClient();
         Properties props = new Properties();
@@ -156,6 +165,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Send too many events at once. Should handle this case gracefully.
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test
     public void testBatchOverrun() throws IOException {
@@ -188,6 +198,7 @@ public class TestNettyAvroRpcClient {
     /**
      * First connect the client, then shut down the server, then send a request.
      * @throws IOException
+     * @throws RpcDeliveryException
      * @throws InterruptedException
      */
     @Test(expected = RpcDeliveryException.class)
@@ -218,6 +229,7 @@ public class TestNettyAvroRpcClient {
     /**
      * First connect the client, then close the client, then send a request.
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test(expected = RpcDeliveryException.class)
     public void testClientClosedRequest() throws IOException {
@@ -300,6 +312,7 @@ public class TestNettyAvroRpcClient {
      * NioClientSocketChannelFactory number of io worker threads
      *
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test
     public void testAppendWithMaxIOWorkers() throws IOException {
@@ -334,6 +347,7 @@ public class TestNettyAvroRpcClient {
      * Compression level 0 = no compression
      *
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test
     public void testAppendWithMaxIOWorkersSimpleCompressionLevel0() throws IOException {

@@ -39,6 +39,7 @@ public class TestFailoverRpcClient {
      * another one back online.
      *
      * @throws IOException
+     * @throws RpcDeliveryException
      * @throws InterruptedException
      */
     @Test
@@ -124,6 +125,7 @@ public class TestFailoverRpcClient {
      * Try writing to some servers and then kill them all.
      *
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     @Test(expected = RpcDeliveryException.class)
     public void testFailedServers() throws IOException {

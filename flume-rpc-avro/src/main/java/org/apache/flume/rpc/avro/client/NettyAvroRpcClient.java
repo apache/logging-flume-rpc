@@ -16,6 +16,8 @@
  */
 package org.apache.flume.rpc.avro.client;
 
+import aQute.bnd.annotation.Resolution;
+import aQute.bnd.annotation.spi.ServiceProvider;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.compression.JZlibDecoder;
 import io.netty.handler.codec.compression.JZlibEncoder;
@@ -59,10 +61,11 @@ import org.apache.avro.ipc.Transceiver;
 import org.apache.avro.ipc.netty.NettyTransceiver;
 import org.apache.avro.ipc.specific.SpecificRequestor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.FlumeException;
+import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.client.spi.AbstractRpcClient;
+import org.apache.flume.client.spi.RpcClientProvider;
 import org.apache.flume.client.spi.SSLContextAwareAbstractRpcClient;
 import org.apache.flume.event.Event;
 import org.apache.flume.source.avro.AvroFlumeEvent;
@@ -72,7 +75,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Avro/Netty implementation of {@link org.apache.flume.rpc.api.RpcClient}.
+ * Avro/Netty implementation of {@link org.apache.flume.api.RpcClient}.
  * The connections are intended to be opened before clients are given access so
  * that the object cannot ever be in an inconsistent when exposed to users.
  */
@@ -99,16 +102,16 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     /**
-     * This constructor is intended to be called from {@link org.apache.flume.rpc.api.RpcClientFactory}.
+     * This constructor is intended to be called from {@link org.apache.flume.api.RpcClientFactory}.
      * A call to this constructor should be followed by call to configure().
      */
     protected NettyAvroRpcClient() {}
 
     /**
      * This method should only be invoked by the build function
-     * @throws FlumeException
+     * @throws IOException if the connection fails.
      */
-    private void connect() throws FlumeException {
+    private void connect() throws IOException {
         connect(connectTimeout, TimeUnit.MILLISECONDS);
     }
 
@@ -116,9 +119,9 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
      * Internal only, for now
      * @param timeout
      * @param tu
-     * @throws FlumeException
+     * @throws IOException if the connection fails.
      */
-    private void connect(long timeout, TimeUnit tu) throws FlumeException {
+    private void connect(long timeout, TimeUnit tu) throws IOException {
         callTimeoutPool =
                 Executors.newCachedThreadPool(new TransceiverThreadFactory("Flume Avro RPC Client Call Invoker"));
 
@@ -141,14 +144,12 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
             if (callTimeoutPool != null) {
                 callTimeoutPool.shutdownNow();
             }
-            if (t instanceof IOException) {
-                throw new FlumeException(this + ": RPC connection error", t);
-            } else if (t instanceof FlumeException) {
-                throw (FlumeException) t;
-            } else if (t instanceof Error) {
+            if (t instanceof Error) {
                 throw (Error) t;
+            } else if (t instanceof IOException) {
+                throw new IOException(this + ": RPC connection error", t);
             } else {
-                throw new FlumeException(this + ": Unexpected exception", t);
+                throw new IOException(this + ": Unexpected exception", t);
             }
         }
 
@@ -156,7 +157,7 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     @Override
-    public void close() throws FlumeException {
+    public void close() throws IOException {
         if (callTimeoutPool != null) {
             callTimeoutPool.shutdown();
             try {
@@ -181,7 +182,7 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
                 transceiver.close();
             }
         } catch (IOException ex) {
-            throw new FlumeException(this + ": Error closing transceiver.", ex);
+            throw new IOException(this + ": Error closing transceiver.", ex);
         } finally {
             setState(ConnState.DEAD);
         }
@@ -430,11 +431,11 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
      * @param properties The properties to instantiate the client with.
      * @return
      */
-    public synchronized void configure(Properties properties) throws FlumeException {
+    public synchronized void configure(Properties properties) throws IOException {
         stateLock.lock();
         try {
             if (connState == ConnState.READY || connState == ConnState.DEAD) {
-                throw new FlumeException("This client was already configured, cannot reconfigure.");
+                throw new IllegalStateException("This client was already configured, cannot reconfigure.");
             }
         } finally {
             stateLock.unlock();
@@ -448,7 +449,7 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
         if (hostNames != null && !hostNames.isEmpty()) {
             hosts = hostNames.split("\\s+");
         } else {
-            throw new FlumeException("Hosts list is invalid: " + hostNames);
+            throw new IllegalArgumentException("Hosts list is invalid: " + hostNames);
         }
 
         if (hosts.length > 1) {
@@ -459,17 +460,17 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
 
         String host = properties.getProperty(RpcClientConfigurationConstants.CONFIG_HOSTS_PREFIX + hosts[0]);
         if (host == null || host.isEmpty()) {
-            throw new FlumeException("Host not found: " + hosts[0]);
+            throw new IllegalArgumentException("Host not found: " + hosts[0]);
         }
         String[] hostAndPort = host.split(":");
         if (hostAndPort.length != 2) {
-            throw new FlumeException("Invalid hostname: " + hosts[0]);
+            throw new IllegalArgumentException("Invalid hostname: " + hosts[0]);
         }
         Integer port = null;
         try {
             port = Integer.parseInt(hostAndPort[1]);
         } catch (NumberFormatException e) {
-            throw new FlumeException("Invalid Port: " + hostAndPort[1], e);
+            throw new IllegalArgumentException("Invalid Port: " + hostAndPort[1], e);
         }
         this.address = new InetSocketAddress(hostAndPort[0], port);
 
@@ -639,6 +640,25 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
             return new X509Certificate[0];
+        }
+    }
+
+    /**
+     * Provides the {@value RpcClientConfigurationConstants#AVRO_CLIENT_TYPE} client type.
+     */
+    @ServiceProvider(value = RpcClientProvider.class, resolution = Resolution.OPTIONAL)
+    public static final class Provider implements RpcClientProvider {
+
+        @Override
+        public String getName() {
+            return RpcClientConfigurationConstants.AVRO_CLIENT_TYPE;
+        }
+
+        @Override
+        public RpcClient create(Properties properties) throws IOException {
+            NettyAvroRpcClient client = new NettyAvroRpcClient();
+            client.configure(properties);
+            return client;
         }
     }
 }

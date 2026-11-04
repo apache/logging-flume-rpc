@@ -24,7 +24,6 @@ import java.util.Properties;
 import java.util.Set;
 import junit.framework.Assert;
 import org.apache.avro.ipc.Server;
-import org.apache.flume.FlumeException;
 import org.apache.flume.api.LoadBalancingRpcClient;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientFactory;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class TestLoadBalancingRpcClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestLoadBalancingRpcClient.class);
 
-    @Test(expected = FlumeException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testCreatingLbClientSingleHost() throws IOException {
         Server server1 = null;
         RpcClient c = null;

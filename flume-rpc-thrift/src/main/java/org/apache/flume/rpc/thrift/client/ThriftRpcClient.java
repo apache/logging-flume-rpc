@@ -16,7 +16,10 @@
  */
 package org.apache.flume.rpc.thrift.client;
 
+import aQute.bnd.annotation.Resolution;
+import aQute.bnd.annotation.spi.ServiceProvider;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.KeyStore;
 import java.util.ArrayList;
@@ -44,16 +47,18 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
-import org.apache.flume.FlumeException;
+import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.client.spi.AbstractRpcClient;
 import org.apache.flume.client.spi.HostInfo;
+import org.apache.flume.client.spi.RpcClientProvider;
 import org.apache.flume.client.spi.SSLContextAwareAbstractRpcClient;
 import org.apache.flume.event.Event;
 import org.apache.flume.rpc.thrift.Status;
 import org.apache.flume.rpc.thrift.ThriftFlumeEvent;
 import org.apache.flume.rpc.thrift.ThriftSourceProtocol;
+import org.apache.flume.rpc.thrift.api.SecureThriftRpcClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -239,7 +244,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     @Override
-    public void close() throws FlumeException {
+    public void close() throws IOException {
         try {
             // Do not release this, because this client is not to be used again
             stateLock.lock();
@@ -254,16 +259,18 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
                 throw (Error) ex;
             } else if (ex instanceof RuntimeException) {
                 throw (RuntimeException) ex;
+            } else if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
             }
-            throw new FlumeException("Failed to close RPC client. ", ex);
+            throw new IOException("Failed to close RPC client. ", ex);
         } finally {
             stateLock.unlock();
         }
     }
 
-    public void configure(Properties properties) throws FlumeException {
+    public void configure(Properties properties) throws IOException {
         if (isActive()) {
-            throw new FlumeException("Attempting to re-configured an already " + "configured client!");
+            throw new IllegalStateException("Attempting to re-configured an already " + "configured client!");
         }
         stateLock.lock();
         try {
@@ -308,7 +315,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
             } else if (ex instanceof RuntimeException) {
                 throw (RuntimeException) ex;
             }
-            throw new FlumeException("Error while configuring RpcClient. ", ex);
+            throw new IllegalStateException("Error while configuring RpcClient. ", ex);
         } finally {
             stateLock.unlock();
         }
@@ -481,7 +488,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
      * on TSSLTransportParameters.
      */
     private static SSLContext createSSLContext(String truststore, String truststorePassword, String truststoreType)
-            throws FlumeException {
+            throws IOException {
         SSLContext ctx;
         try {
             ctx = SSLContext.getInstance("TLS");
@@ -500,7 +507,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
             ctx.init(null, tmf.getTrustManagers(), null);
 
         } catch (Exception e) {
-            throw new FlumeException("Error creating the transport", e);
+            throw new IOException("Error creating the transport", e);
         }
         return ctx;
     }
@@ -514,7 +521,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
             Set<String> includeProtocols,
             Set<String> excludeCipherSuites,
             Set<String> includeCipherSuites)
-            throws FlumeException {
+            throws IOException {
         try {
             SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
             socket.setSoTimeout(timeout);
@@ -539,7 +546,28 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
 
             return new TSocket(socket);
         } catch (Exception e) {
-            throw new FlumeException("Could not connect to " + host + " on port " + port, e);
+            throw new IOException("Could not connect to " + host + " on port " + port, e);
+        }
+    }
+
+    /**
+     * Provides the {@value RpcClientConfigurationConstants#THRIFT_CLIENT_TYPE} client type.
+     */
+    @ServiceProvider(value = RpcClientProvider.class, resolution = Resolution.OPTIONAL)
+    public static final class Provider implements RpcClientProvider {
+
+        @Override
+        public String getName() {
+            return RpcClientConfigurationConstants.THRIFT_CLIENT_TYPE;
+        }
+
+        @Override
+        public RpcClient create(Properties properties) throws IOException {
+            boolean kerberos =
+                    Boolean.parseBoolean(properties.getProperty(RpcClientConfigurationConstants.KERBEROS_KEY, "false"));
+            ThriftRpcClient client = kerberos ? new SecureThriftRpcClient() : new ThriftRpcClient();
+            client.configure(properties);
+            return client;
         }
     }
 }

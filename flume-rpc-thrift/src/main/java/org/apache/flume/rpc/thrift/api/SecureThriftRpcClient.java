@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Properties;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
-import org.apache.flume.FlumeException;
 import org.apache.flume.auth.FlumeAuthenticationUtil;
 import org.apache.flume.auth.FlumeAuthenticator;
 import org.apache.flume.auth.PrivilegedExecutor;
@@ -40,21 +39,27 @@ public class SecureThriftRpcClient extends ThriftRpcClient {
     private static final String SERVER_PRINCIPAL = "server-principal";
 
     private String serverPrincipal;
+    private String[] serverPrincipalNames;
     private FlumeAuthenticator privilegedExecutor;
 
     @Override
-    public void configure(Properties properties) throws FlumeException {
+    public void configure(Properties properties) throws IOException {
         super.configure(properties);
         serverPrincipal = properties.getProperty(SERVER_PRINCIPAL);
         if (serverPrincipal == null || serverPrincipal.isEmpty()) {
             throw new IllegalArgumentException("Flume in secure mode, but Flume config doesn't "
                     + "specify a server principal to use for Kerberos auth.");
         }
+        try {
+            serverPrincipalNames = FlumeAuthenticationUtil.splitKerberosName(serverPrincipal);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error while trying to resolve Principal name - " + serverPrincipal, e);
+        }
         String clientPrincipal = properties.getProperty(CLIENT_PRINCIPAL);
         String keytab = properties.getProperty(CLIENT_KEYTAB);
         this.privilegedExecutor = FlumeAuthenticationUtil.getAuthenticator(clientPrincipal, keytab);
         if (!privilegedExecutor.isAuthenticated()) {
-            throw new FlumeException("Authentication failed in Kerberos mode for " + "principal " + clientPrincipal
+            throw new IOException("Authentication failed in Kerberos mode for " + "principal " + clientPrincipal
                     + " keytab " + keytab);
         }
     }
@@ -63,14 +68,15 @@ public class SecureThriftRpcClient extends ThriftRpcClient {
     protected TTransport getTransport(TSocket tsocket) throws Exception {
         Map<String, String> saslProperties = new HashMap<String, String>();
         saslProperties.put(Sasl.QOP, "auth");
-        String[] names;
-        try {
-            names = FlumeAuthenticationUtil.splitKerberosName(serverPrincipal);
-        } catch (IOException e) {
-            throw new FlumeException("Error while trying to resolve Principal name - " + serverPrincipal, e);
-        }
         return new UgiSaslClientTransport(
-                "GSSAPI", null, names[0], names[1], saslProperties, null, tsocket, privilegedExecutor);
+                "GSSAPI",
+                null,
+                serverPrincipalNames[0],
+                serverPrincipalNames[1],
+                saslProperties,
+                null,
+                tsocket,
+                privilegedExecutor);
     }
 
     /**
@@ -98,29 +104,28 @@ public class SecureThriftRpcClient extends ThriftRpcClient {
          * This is needed to get the current login context stored
          */
         @Override
-        public void open() throws FlumeException {
+        public void open() throws TTransportException {
             try {
                 this.privilegedExecutor.execute(new PrivilegedExceptionAction<Void>() {
-                    public Void run() throws FlumeException {
+                    public Void run() throws TTransportException {
                         // this is a workaround to using UgiSaslClientTransport.super.open()
                         // which results in IllegalAccessError
                         callSuperClassOpen();
                         return null;
                     }
                 });
+            } catch (TTransportException e) {
+                throw e;
             } catch (InterruptedException e) {
-                throw new FlumeException("Interrupted while opening underlying transport", e);
+                Thread.currentThread().interrupt();
+                throw new TTransportException("Interrupted while opening underlying transport", e);
             } catch (Exception e) {
-                throw new FlumeException("Failed to open SASL transport", e);
+                throw new TTransportException("Failed to open SASL transport", e);
             }
         }
 
-        private void callSuperClassOpen() throws FlumeException {
-            try {
-                super.open();
-            } catch (TTransportException e) {
-                throw new FlumeException("Failed to open SASL transport", e);
-            }
+        private void callSuperClassOpen() throws TTransportException {
+            super.open();
         }
     }
 }

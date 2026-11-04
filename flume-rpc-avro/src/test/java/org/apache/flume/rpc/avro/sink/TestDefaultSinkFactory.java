@@ -38,8 +38,8 @@ public class TestDefaultSinkFactory {
     @Test
     public void testDuplicateCreate() {
 
-        Sink avroSink1 = sinkFactory.create("avroSink1", "avro");
-        Sink avroSink2 = sinkFactory.create("avroSink2", "avro");
+        Sink avroSink1 = sinkFactory.create("avroSink1", AvroSink.class.getName());
+        Sink avroSink2 = sinkFactory.create("avroSink2", AvroSink.class.getName());
 
         Assert.assertNotNull(avroSink1);
         Assert.assertNotNull(avroSink2);
@@ -47,8 +47,8 @@ public class TestDefaultSinkFactory {
         Assert.assertTrue(avroSink1 instanceof AvroSink);
         Assert.assertTrue(avroSink2 instanceof AvroSink);
 
-        Sink s1 = sinkFactory.create("avroSink1", "avro");
-        Sink s2 = sinkFactory.create("avroSink2", "avro");
+        Sink s1 = sinkFactory.create("avroSink1", AvroSink.class.getName());
+        Sink s2 = sinkFactory.create("avroSink2", AvroSink.class.getName());
 
         Assert.assertNotSame(avroSink1, s1);
         Assert.assertNotSame(avroSink2, s2);
@@ -65,6 +65,6 @@ public class TestDefaultSinkFactory {
         verifySinkCreation("null-sink", "null", NullSink.class);
         verifySinkCreation("logger-sink", "logger", LoggerSink.class);
         verifySinkCreation("file-roll-sink", "file_roll", RollingFileSink.class);
-        verifySinkCreation("avro-sink", "avro", AvroSink.class);
+        verifySinkCreation("avro-sink", AvroSink.class.getName(), AvroSink.class);
     }
 }

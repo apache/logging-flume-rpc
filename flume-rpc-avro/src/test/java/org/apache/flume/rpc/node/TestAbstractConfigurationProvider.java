@@ -32,6 +32,7 @@ import org.apache.flume.event.Event;
 import org.apache.flume.exception.ChannelException;
 import org.apache.flume.node.AbstractConfigurationProvider;
 import org.apache.flume.node.MaterializedConfiguration;
+import org.apache.flume.rpc.avro.sink.AvroSink;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.flume.source.AbstractSource;
 import org.junit.Test;
@@ -178,7 +179,7 @@ public class TestAbstractConfigurationProvider {
         String agentName = "agent1";
         String sourceType = "seq";
         String channelType = "memory";
-        String sinkType = "avro";
+        String sinkType = AvroSink.class.getName();
         Map<String, String> properties = getProperties(agentName, sourceType, channelType, sinkType);
         properties.put(agentName + ".channels.channel1.capacity", "1000");
         properties.put(agentName + ".channels.channel1.transactionCapacity", "1000");

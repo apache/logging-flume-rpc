@@ -38,8 +38,8 @@ public class TestDefaultSourceFactory {
     @Test
     public void testDuplicateCreate() {
 
-        Source avroSource1 = sourceFactory.create("avroSource1", "avro");
-        Source avroSource2 = sourceFactory.create("avroSource2", "avro");
+        Source avroSource1 = sourceFactory.create("avroSource1", AvroSource.class.getName());
+        Source avroSource2 = sourceFactory.create("avroSource2", AvroSource.class.getName());
 
         Assert.assertNotNull(avroSource1);
         Assert.assertNotNull(avroSource2);
@@ -47,8 +47,8 @@ public class TestDefaultSourceFactory {
         Assert.assertTrue(avroSource1 instanceof AvroSource);
         Assert.assertTrue(avroSource2 instanceof AvroSource);
 
-        Source s1 = sourceFactory.create("avroSource1", "avro");
-        Source s2 = sourceFactory.create("avroSource2", "avro");
+        Source s1 = sourceFactory.create("avroSource1", AvroSource.class.getName());
+        Source s2 = sourceFactory.create("avroSource2", AvroSource.class.getName());
 
         Assert.assertNotSame(avroSource1, s1);
         Assert.assertNotSame(avroSource2, s2);
@@ -65,7 +65,7 @@ public class TestDefaultSourceFactory {
         verifySourceCreation("seq-src", "seq", SequenceGeneratorSource.class);
         verifySourceCreation("netcat-src", "netcat", NetcatSource.class);
         verifySourceCreation("exec-src", "exec", ExecSource.class);
-        verifySourceCreation("avro-src", "avro", AvroSource.class);
+        verifySourceCreation("avro-src", AvroSource.class.getName(), AvroSource.class);
         verifySourceCreation("custom-src", MockSource.class.getCanonicalName(), MockSource.class);
     }
 }

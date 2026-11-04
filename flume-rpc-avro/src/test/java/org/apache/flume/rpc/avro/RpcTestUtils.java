@@ -32,6 +32,7 @@ import org.apache.avro.ipc.Server;
 import org.apache.avro.ipc.netty.NettyServer;
 import org.apache.avro.ipc.specific.SpecificResponder;
 import org.apache.flume.api.RpcClientConfigurationConstants;
+import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.client.NettyAvroRpcClient;
@@ -54,6 +55,7 @@ public class RpcTestUtils {
      * Helper method for testing simple (single) appends on handlers
      * @param handler
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     public static void handlerSimpleAppendTest(AvroSourceProtocol handler) throws IOException {
         handlerSimpleAppendTest(handler, false, false, 0);
@@ -63,6 +65,7 @@ public class RpcTestUtils {
      * Helper method for testing simple (single) with compression level 6 appends on handlers
      * @param handler
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     public static void handlerSimpleAppendTest(
             AvroSourceProtocol handler,
@@ -99,6 +102,7 @@ public class RpcTestUtils {
      * Helper method for testing batch appends on handlers
      * @param handler
      * @throws IOException
+     * @throws RpcDeliveryException
      */
     public static void handlerBatchAppendTest(
             AvroSourceProtocol handler,
@@ -139,13 +143,13 @@ public class RpcTestUtils {
     /**
      * Helper method for constructing a Netty RPC client that talks to localhost.
      */
-    public static NettyAvroRpcClient getStockLocalClient(int port) {
+    public static NettyAvroRpcClient getStockLocalClient(int port) throws IOException {
         Properties props = new Properties();
 
         return getStockLocalClient(port, props);
     }
 
-    public static NettyAvroRpcClient getStockLocalClient(int port, Properties starterProp) {
+    public static NettyAvroRpcClient getStockLocalClient(int port, Properties starterProp) throws IOException {
         starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_HOSTS, "h1");
         starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_HOSTS_PREFIX + "h1", "127.0.0.1" + ":" + port);
         NettyAvroRpcClient client = NettyAvroRpcClient.newInstance();

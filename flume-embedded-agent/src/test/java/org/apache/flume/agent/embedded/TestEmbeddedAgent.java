@@ -57,6 +57,7 @@ public class TestEmbeddedAgent {
 
     @Before
     public void setUp() throws Exception {
+        AvroSinkAlias.assumeResolvable();
         headers = Maps.newHashMap();
         headers.put("key1", "value1");
         body = "body".getBytes(Charsets.UTF_8);
