@@ -44,13 +44,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
 import org.apache.flume.FlumeException;
-import org.apache.flume.api.AbstractRpcClient;
-import org.apache.flume.api.HostInfo;
 import org.apache.flume.api.RpcClientConfigurationConstants;
-import org.apache.flume.api.SSLContextAwareAbstractRpcClient;
+import org.apache.flume.api.RpcDeliveryException;
+import org.apache.flume.client.spi.AbstractRpcClient;
+import org.apache.flume.client.spi.HostInfo;
+import org.apache.flume.client.spi.SSLContextAwareAbstractRpcClient;
+import org.apache.flume.event.Event;
 import org.apache.flume.rpc.thrift.Status;
 import org.apache.flume.rpc.thrift.ThriftFlumeEvent;
 import org.apache.flume.rpc.thrift.ThriftSourceProtocol;
@@ -106,14 +106,14 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     @Override
-    public void append(Event event) throws EventDeliveryException {
+    public void append(Event event) throws RpcDeliveryException {
         // Thrift IPC client is not thread safe, so don't allow state changes or
         // client.append* calls unless the lock is acquired.
         ClientWrapper client = null;
         boolean destroyedClient = false;
         try {
             if (!isActive()) {
-                throw new EventDeliveryException("Client was closed due to error. " + "Please create a new client");
+                throw new RpcDeliveryException("Client was closed due to error. " + "Please create a new client");
             }
             client = connectionManager.checkout();
             final ThriftFlumeEvent thriftEvent =
@@ -122,10 +122,10 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
         } catch (Throwable e) {
             if (e instanceof ExecutionException) {
                 Throwable cause = e.getCause();
-                if (cause instanceof EventDeliveryException) {
-                    throw (EventDeliveryException) cause;
+                if (cause instanceof RpcDeliveryException) {
+                    throw (RpcDeliveryException) cause;
                 } else if (cause instanceof TimeoutException) {
-                    throw new EventDeliveryException("Append call timeout", cause);
+                    throw new RpcDeliveryException("Append call timeout", cause);
                 }
             }
             destroyedClient = true;
@@ -139,7 +139,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
             } else if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             }
-            throw new EventDeliveryException("Failed to send event. ", e);
+            throw new RpcDeliveryException("Failed to send event. ", e);
         } finally {
             if (client != null && !destroyedClient) {
                 connectionManager.checkIn(client);
@@ -148,14 +148,14 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     @Override
-    public void appendBatch(List<Event> events) throws EventDeliveryException {
+    public void appendBatch(List<Event> events) throws RpcDeliveryException {
         // Thrift IPC client is not thread safe, so don't allow state changes or
         // client.append* calls unless the lock is acquired.
         ClientWrapper client = null;
         boolean destroyedClient = false;
         try {
             if (!isActive()) {
-                throw new EventDeliveryException("Client was closed " + "due to error or is not yet configured.");
+                throw new RpcDeliveryException("Client was closed " + "due to error or is not yet configured.");
             }
             client = connectionManager.checkout();
             final List<ThriftFlumeEvent> thriftFlumeEvents = new ArrayList<ThriftFlumeEvent>();
@@ -173,10 +173,10 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
         } catch (Throwable e) {
             if (e instanceof ExecutionException) {
                 Throwable cause = e.getCause();
-                if (cause instanceof EventDeliveryException) {
-                    throw (EventDeliveryException) cause;
+                if (cause instanceof RpcDeliveryException) {
+                    throw (RpcDeliveryException) cause;
                 } else if (cause instanceof TimeoutException) {
-                    throw new EventDeliveryException("Append call timeout", cause);
+                    throw new RpcDeliveryException("Append call timeout", cause);
                 }
             }
             destroyedClient = true;
@@ -190,7 +190,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
             } else if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             }
-            throw new EventDeliveryException("Failed to send event. ", e);
+            throw new RpcDeliveryException("Failed to send event. ", e);
         } finally {
             if (client != null && !destroyedClient) {
                 connectionManager.checkIn(client);
@@ -205,7 +205,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
             public Void call() throws Exception {
                 Status status = client.client.append(e);
                 if (status != Status.OK) {
-                    throw new EventDeliveryException(
+                    throw new RpcDeliveryException(
                             "Failed to deliver events. Server " + "returned status : " + status.name());
                 }
                 return null;
@@ -220,7 +220,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
             public Void call() throws Exception {
                 Status status = client.client.appendBatch(e);
                 if (status != Status.OK) {
-                    throw new EventDeliveryException(
+                    throw new RpcDeliveryException(
                             "Failed to deliver events. Server " + "returned status : " + status.name());
                 }
                 return null;
@@ -261,7 +261,6 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
         }
     }
 
-    @Override
     public void configure(Properties properties) throws FlumeException {
         if (isActive()) {
             throw new FlumeException("Attempting to re-configured an already " + "configured client!");

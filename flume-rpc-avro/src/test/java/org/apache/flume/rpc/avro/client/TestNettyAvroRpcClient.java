@@ -16,15 +16,16 @@
  */
 package org.apache.flume.rpc.avro.client;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.avro.ipc.Server;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
 import org.apache.flume.FlumeException;
 import org.apache.flume.api.RpcClientConfigurationConstants;
+import org.apache.flume.api.RpcDeliveryException;
+import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.RpcTestUtils;
 import org.apache.flume.rpc.avro.RpcTestUtils.FailedAvroHandler;
@@ -47,21 +48,19 @@ public class TestNettyAvroRpcClient {
 
     /**
      * Simple request
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test
-    public void testOKServerSimple() throws FlumeException, EventDeliveryException {
+    public void testOKServerSimple() throws IOException {
         RpcTestUtils.handlerSimpleAppendTest(new OKAvroHandler());
     }
 
     /**
      * Simple request with compression on the server and client with compression level 6
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test
-    public void testOKServerSimpleCompressionLevel6() throws FlumeException, EventDeliveryException {
+    public void testOKServerSimpleCompressionLevel6() throws IOException {
         RpcTestUtils.handlerSimpleAppendTest(new OKAvroHandler(), true, true, 6);
     }
 
@@ -69,81 +68,73 @@ public class TestNettyAvroRpcClient {
      * Simple request with compression on the server and client with compression level 0
      *
      * Compression level 0 = no compression
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test
-    public void testOKServerSimpleCompressionLevel0() throws FlumeException, EventDeliveryException {
+    public void testOKServerSimpleCompressionLevel0() throws IOException {
         RpcTestUtils.handlerSimpleAppendTest(new OKAvroHandler(), true, true, 0);
     }
 
     /**
      * Simple request with compression on the client only
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test(expected = org.apache.flume.EventDeliveryException.class)
-    public void testOKServerSimpleCompressionClientOnly() throws FlumeException, EventDeliveryException {
+    public void testOKServerSimpleCompressionClientOnly() throws IOException {
         RpcTestUtils.handlerSimpleAppendTest(new OKAvroHandler(), false, true, 6);
     }
 
     /**
      * Simple request with compression on the server only
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test(expected = org.apache.flume.EventDeliveryException.class)
-    public void testOKServerSimpleCompressionServerOnly() throws FlumeException, EventDeliveryException {
+    public void testOKServerSimpleCompressionServerOnly() throws IOException {
         RpcTestUtils.handlerSimpleAppendTest(new OKAvroHandler(), true, false, 6);
     }
 
     /**
      * Simple batch request
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test
-    public void testOKServerBatch() throws FlumeException, EventDeliveryException {
+    public void testOKServerBatch() throws IOException {
         RpcTestUtils.handlerBatchAppendTest(new OKAvroHandler());
     }
 
     /**
      * Simple batch request with compression deflate level 0
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test
-    public void testOKServerBatchCompressionLevel0() throws FlumeException, EventDeliveryException {
+    public void testOKServerBatchCompressionLevel0() throws IOException {
         RpcTestUtils.handlerBatchAppendTest(new OKAvroHandler(), true, true, 0);
     }
 
     /**
      * Simple batch request with compression deflate level 6
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test
-    public void testOKServerBatchCompressionLevel6() throws FlumeException, EventDeliveryException {
+    public void testOKServerBatchCompressionLevel6() throws IOException {
         RpcTestUtils.handlerBatchAppendTest(new OKAvroHandler(), true, true, 6);
     }
 
     /**
      * Simple batch request where the server only is using compression
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test(expected = org.apache.flume.EventDeliveryException.class)
-    public void testOKServerBatchCompressionServerOnly() throws FlumeException, EventDeliveryException {
+    public void testOKServerBatchCompressionServerOnly() throws IOException {
         RpcTestUtils.handlerBatchAppendTest(new OKAvroHandler(), true, false, 6);
     }
 
     /**
      * Simple batch request where the client only is using compression
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test(expected = org.apache.flume.EventDeliveryException.class)
-    public void testOKServerBatchCompressionClientOnly() throws FlumeException, EventDeliveryException {
+    public void testOKServerBatchCompressionClientOnly() throws IOException {
         RpcTestUtils.handlerBatchAppendTest(new OKAvroHandler(), false, true, 6);
     }
 
@@ -164,11 +155,10 @@ public class TestNettyAvroRpcClient {
 
     /**
      * Send too many events at once. Should handle this case gracefully.
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test
-    public void testBatchOverrun() throws FlumeException, EventDeliveryException {
+    public void testBatchOverrun() throws IOException {
 
         int batchSize = 10;
         int moreThanBatchSize = batchSize + 1;
@@ -197,12 +187,11 @@ public class TestNettyAvroRpcClient {
 
     /**
      * First connect the client, then shut down the server, then send a request.
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      * @throws InterruptedException
      */
-    @Test(expected = EventDeliveryException.class)
-    public void testServerDisconnect() throws FlumeException, EventDeliveryException, InterruptedException {
+    @Test(expected = RpcDeliveryException.class)
+    public void testServerDisconnect() throws IOException, InterruptedException {
         NettyAvroRpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
         try {
@@ -228,11 +217,10 @@ public class TestNettyAvroRpcClient {
 
     /**
      * First connect the client, then close the client, then send a request.
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
-    @Test(expected = EventDeliveryException.class)
-    public void testClientClosedRequest() throws FlumeException, EventDeliveryException {
+    @Test(expected = RpcDeliveryException.class)
+    public void testClientClosedRequest() throws IOException {
         NettyAvroRpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
         try {
@@ -250,8 +238,8 @@ public class TestNettyAvroRpcClient {
     /**
      * Send an event to an online server that returns FAILED.
      */
-    @Test(expected = EventDeliveryException.class)
-    public void testFailedServerSimple() throws FlumeException, EventDeliveryException {
+    @Test(expected = RpcDeliveryException.class)
+    public void testFailedServerSimple() throws IOException {
 
         RpcTestUtils.handlerSimpleAppendTest(new FailedAvroHandler());
         logger.error("Failed: I should never have gotten here!");
@@ -260,8 +248,8 @@ public class TestNettyAvroRpcClient {
     /**
      * Send an event to an online server that returns UNKNOWN.
      */
-    @Test(expected = EventDeliveryException.class)
-    public void testUnknownServerSimple() throws FlumeException, EventDeliveryException {
+    @Test(expected = RpcDeliveryException.class)
+    public void testUnknownServerSimple() throws IOException {
 
         RpcTestUtils.handlerSimpleAppendTest(new UnknownAvroHandler());
         logger.error("Unknown: I should never have gotten here!");
@@ -270,8 +258,8 @@ public class TestNettyAvroRpcClient {
     /**
      * Send an event to an online server that throws an exception.
      */
-    @Test(expected = EventDeliveryException.class)
-    public void testThrowingServerSimple() throws FlumeException, EventDeliveryException {
+    @Test(expected = RpcDeliveryException.class)
+    public void testThrowingServerSimple() throws IOException {
 
         RpcTestUtils.handlerSimpleAppendTest(new ThrowingAvroHandler());
         logger.error("Throwing: I should never have gotten here!");
@@ -280,8 +268,8 @@ public class TestNettyAvroRpcClient {
     /**
      * Send a batch of events to a server that returns FAILED.
      */
-    @Test(expected = EventDeliveryException.class)
-    public void testFailedServerBatch() throws FlumeException, EventDeliveryException {
+    @Test(expected = RpcDeliveryException.class)
+    public void testFailedServerBatch() throws IOException {
 
         RpcTestUtils.handlerBatchAppendTest(new FailedAvroHandler());
         logger.error("Failed: I should never have gotten here!");
@@ -290,8 +278,8 @@ public class TestNettyAvroRpcClient {
     /**
      * Send a batch of events to a server that returns UNKNOWN.
      */
-    @Test(expected = EventDeliveryException.class)
-    public void testUnknownServerBatch() throws FlumeException, EventDeliveryException {
+    @Test(expected = RpcDeliveryException.class)
+    public void testUnknownServerBatch() throws IOException {
 
         RpcTestUtils.handlerBatchAppendTest(new UnknownAvroHandler());
         logger.error("Unknown: I should never have gotten here!");
@@ -300,8 +288,8 @@ public class TestNettyAvroRpcClient {
     /**
      * Send a batch of events to a server that always throws exceptions.
      */
-    @Test(expected = EventDeliveryException.class)
-    public void testThrowingServerBatch() throws FlumeException, EventDeliveryException {
+    @Test(expected = RpcDeliveryException.class)
+    public void testThrowingServerBatch() throws IOException {
 
         RpcTestUtils.handlerBatchAppendTest(new ThrowingAvroHandler());
         logger.error("Throwing: I should never have gotten here!");
@@ -311,11 +299,10 @@ public class TestNettyAvroRpcClient {
      * configure the NettyAvroRpcClient with a non-default
      * NioClientSocketChannelFactory number of io worker threads
      *
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test
-    public void testAppendWithMaxIOWorkers() throws FlumeException, EventDeliveryException {
+    public void testAppendWithMaxIOWorkers() throws IOException {
         NettyAvroRpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
         Properties props = new Properties();
@@ -346,11 +333,10 @@ public class TestNettyAvroRpcClient {
      *
      * Compression level 0 = no compression
      *
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     @Test
-    public void testAppendWithMaxIOWorkersSimpleCompressionLevel0() throws FlumeException, EventDeliveryException {
+    public void testAppendWithMaxIOWorkersSimpleCompressionLevel0() throws IOException {
         NettyAvroRpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler(), 0, true);
         Properties props = new Properties();

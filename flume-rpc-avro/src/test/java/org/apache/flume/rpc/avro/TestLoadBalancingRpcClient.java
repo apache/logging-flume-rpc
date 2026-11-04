@@ -16,6 +16,7 @@
  */
 package org.apache.flume.rpc.avro;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -23,12 +24,12 @@ import java.util.Properties;
 import java.util.Set;
 import junit.framework.Assert;
 import org.apache.avro.ipc.Server;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
 import org.apache.flume.FlumeException;
 import org.apache.flume.api.LoadBalancingRpcClient;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientFactory;
+import org.apache.flume.api.RpcDeliveryException;
+import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.RpcTestUtils.LoadBalancedAvroHandler;
 import org.apache.flume.rpc.avro.RpcTestUtils.OKAvroHandler;
@@ -40,7 +41,7 @@ public class TestLoadBalancingRpcClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestLoadBalancingRpcClient.class);
 
     @Test(expected = FlumeException.class)
-    public void testCreatingLbClientSingleHost() {
+    public void testCreatingLbClientSingleHost() throws IOException {
         Server server1 = null;
         RpcClient c = null;
         try {
@@ -96,7 +97,7 @@ public class TestLoadBalancingRpcClient {
     }
 
     // This will fail without FLUME-1823
-    @Test(expected = EventDeliveryException.class)
+    @Test(expected = RpcDeliveryException.class)
     public void testTwoHostFailoverThrowAfterClose() throws Exception {
         Server s1 = null;
         Server s2 = null;
@@ -512,8 +513,8 @@ public class TestLoadBalancingRpcClient {
         try {
             c.append(EventBuilder.withBody("shouldfail".getBytes()));
             // nothing should be able to process right now
-            Assert.fail("Expected EventDeliveryException");
-        } catch (EventDeliveryException e) {
+            Assert.fail("Expected RpcDeliveryException");
+        } catch (RpcDeliveryException e) {
             // this is expected
         }
         Thread.sleep(2500); // wait for s0 to no longer be backed off
@@ -528,7 +529,7 @@ public class TestLoadBalancingRpcClient {
     }
 
     @Test
-    public void testRoundRobinBackoffInitialFailure() throws EventDeliveryException {
+    public void testRoundRobinBackoffInitialFailure() throws IOException {
         Properties p = new Properties();
         List<LoadBalancedAvroHandler> hosts = new ArrayList<LoadBalancedAvroHandler>();
         List<Server> servers = new ArrayList<Server>();
@@ -625,7 +626,7 @@ public class TestLoadBalancingRpcClient {
     }
 
     @Test
-    public void testRoundRobinBackoffFailureRecovery() throws EventDeliveryException, InterruptedException {
+    public void testRoundRobinBackoffFailureRecovery() throws IOException, InterruptedException {
         Properties p = new Properties();
         List<LoadBalancedAvroHandler> hosts = new ArrayList<LoadBalancedAvroHandler>();
         List<Server> servers = new ArrayList<Server>();

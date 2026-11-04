@@ -16,16 +16,15 @@
  */
 package org.apache.flume.rpc.avro;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.avro.ipc.Server;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.FlumeException;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientFactory;
+import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.RpcTestUtils.OKAvroHandler;
 import org.junit.Assert;
@@ -40,7 +39,7 @@ public class TestRpcClientFactory {
     private static final String localhost = "localhost";
 
     @Test
-    public void testTwoParamSimpleAppend() throws FlumeException, EventDeliveryException {
+    public void testTwoParamSimpleAppend() throws IOException {
         RpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
         try {
@@ -54,7 +53,7 @@ public class TestRpcClientFactory {
 
     // testing deprecated API
     @Test
-    public void testTwoParamDeprecatedAppend() throws FlumeException, EventDeliveryException {
+    public void testTwoParamDeprecatedAppend() throws IOException {
         RpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
         try {
@@ -68,7 +67,7 @@ public class TestRpcClientFactory {
 
     // testing deprecated API
     @Test
-    public void testThreeParamDeprecatedAppend() throws FlumeException, EventDeliveryException {
+    public void testThreeParamDeprecatedAppend() throws IOException {
         RpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
         try {
@@ -82,7 +81,7 @@ public class TestRpcClientFactory {
     }
 
     @Test
-    public void testThreeParamBatchAppend() throws FlumeException, EventDeliveryException {
+    public void testThreeParamBatchAppend() throws IOException {
         int batchSize = 7;
         RpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
@@ -101,7 +100,7 @@ public class TestRpcClientFactory {
     }
 
     @Test
-    public void testPropertiesBatchAppend() throws FlumeException, EventDeliveryException {
+    public void testPropertiesBatchAppend() throws IOException {
         int batchSize = 7;
         RpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
@@ -124,7 +123,7 @@ public class TestRpcClientFactory {
 
     // we are supposed to handle this gracefully
     @Test
-    public void testTwoParamBatchAppendOverflow() throws FlumeException, EventDeliveryException {
+    public void testTwoParamBatchAppendOverflow() throws IOException {
         RpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
         try {

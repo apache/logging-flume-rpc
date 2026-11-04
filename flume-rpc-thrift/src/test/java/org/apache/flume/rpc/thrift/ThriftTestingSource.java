@@ -43,17 +43,17 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.flume.Channel;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
 import org.apache.flume.FlumeException;
 import org.apache.flume.Transaction;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcClientFactory;
+import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.channel.MemoryChannel;
 import org.apache.flume.channel.ReplicatingChannelSelector;
 import org.apache.flume.conf.Configurables;
+import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.exception.ChannelException;
 import org.apache.flume.instrumentation.SourceCounter;
@@ -391,7 +391,7 @@ public class ThriftTestingSource {
             System.clearProperty("javax.net.ssl.keyStoreType");
         }
 
-        private void doAppendSSL() throws EventDeliveryException {
+        private void doAppendSSL() throws IOException {
             Properties sslprops = (Properties) props.clone();
             sslprops.put("ssl", "true");
             sslprops.put("truststore", "src/test/resources/truststorefile.jks");
@@ -591,12 +591,12 @@ public class ThriftTestingSource {
             Event event = EventBuilder.withBody("hello".getBytes());
             try {
                 client.append(event);
-            } catch (EventDeliveryException e) {
+            } catch (RpcDeliveryException e) {
                 //
             }
             try {
                 client.appendBatch(Arrays.asList(event));
-            } catch (EventDeliveryException e) {
+            } catch (RpcDeliveryException e) {
                 //
             }
             SourceCounter sc = (SourceCounter) Whitebox.getInternalState(source, "sourceCounter");
@@ -621,7 +621,7 @@ public class ThriftTestingSource {
                 }
                 try {
                     client.appendBatch(events);
-                } catch (EventDeliveryException e) {
+                } catch (RpcDeliveryException e) {
                     throw new FlumeException(e);
                 }
             }

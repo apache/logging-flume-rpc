@@ -39,20 +39,20 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-sdk</artifactId>
+      <artifactId>flume-sdk</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-sdk-test</artifactId>
+      <artifactId>flume-sdk-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-auth</artifactId>
+      <artifactId>flume-auth</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-ng-core</artifactId>
+      <artifactId>flume-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.thrift</groupId>

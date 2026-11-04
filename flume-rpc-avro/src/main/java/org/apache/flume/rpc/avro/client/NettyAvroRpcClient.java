@@ -59,12 +59,12 @@ import org.apache.avro.ipc.Transceiver;
 import org.apache.avro.ipc.netty.NettyTransceiver;
 import org.apache.avro.ipc.specific.SpecificRequestor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
 import org.apache.flume.FlumeException;
-import org.apache.flume.api.AbstractRpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
-import org.apache.flume.api.SSLContextAwareAbstractRpcClient;
+import org.apache.flume.api.RpcDeliveryException;
+import org.apache.flume.client.spi.AbstractRpcClient;
+import org.apache.flume.client.spi.SSLContextAwareAbstractRpcClient;
+import org.apache.flume.event.Event;
 import org.apache.flume.source.avro.AvroFlumeEvent;
 import org.apache.flume.source.avro.AvroSourceProtocol;
 import org.apache.flume.source.avro.Status;
@@ -193,7 +193,7 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     @Override
-    public void append(Event event) throws EventDeliveryException {
+    public void append(Event event) throws RpcDeliveryException {
         try {
             append(event, requestTimeout, TimeUnit.MILLISECONDS);
         } catch (Throwable t) {
@@ -204,14 +204,14 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
                 throw (Error) t;
             }
             if (t instanceof TimeoutException) {
-                throw new EventDeliveryException(
+                throw new RpcDeliveryException(
                         this + ": Failed to send event. " + "RPC request timed out after " + requestTimeout + "ms", t);
             }
-            throw new EventDeliveryException(this + ": Failed to send event", t);
+            throw new RpcDeliveryException(this + ": Failed to send event", t);
         }
     }
 
-    private void append(Event event, long timeout, TimeUnit tu) throws EventDeliveryException {
+    private void append(Event event, long timeout, TimeUnit tu) throws RpcDeliveryException {
 
         assertReady();
 
@@ -233,19 +233,19 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
                 }
             });
         } catch (RejectedExecutionException ex) {
-            throw new EventDeliveryException(this + ": Executor error", ex);
+            throw new RpcDeliveryException(this + ": Executor error", ex);
         }
 
         try {
             handshake.get(connectTimeout, TimeUnit.MILLISECONDS);
         } catch (TimeoutException ex) {
-            throw new EventDeliveryException(this + ": Handshake timed out after " + connectTimeout + " ms", ex);
+            throw new RpcDeliveryException(this + ": Handshake timed out after " + connectTimeout + " ms", ex);
         } catch (InterruptedException ex) {
-            throw new EventDeliveryException(this + ": Interrupted in handshake", ex);
+            throw new RpcDeliveryException(this + ": Interrupted in handshake", ex);
         } catch (ExecutionException ex) {
-            throw new EventDeliveryException(this + ": RPC request exception", ex);
+            throw new RpcDeliveryException(this + ": RPC request exception", ex);
         } catch (CancellationException ex) {
-            throw new EventDeliveryException(this + ": RPC request cancelled", ex);
+            throw new RpcDeliveryException(this + ": RPC request cancelled", ex);
         } finally {
             if (!handshake.isDone()) {
                 handshake.cancel(true);
@@ -256,7 +256,7 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     @Override
-    public void appendBatch(List<Event> events) throws EventDeliveryException {
+    public void appendBatch(List<Event> events) throws RpcDeliveryException {
         try {
             appendBatch(events, requestTimeout, TimeUnit.MILLISECONDS);
         } catch (Throwable t) {
@@ -267,14 +267,14 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
                 throw (Error) t;
             }
             if (t instanceof TimeoutException) {
-                throw new EventDeliveryException(
+                throw new RpcDeliveryException(
                         this + ": Failed to send event. " + "RPC request timed out after " + requestTimeout + " ms", t);
             }
-            throw new EventDeliveryException(this + ": Failed to send batch", t);
+            throw new RpcDeliveryException(this + ": Failed to send batch", t);
         }
     }
 
-    private void appendBatch(List<Event> events, long timeout, TimeUnit tu) throws EventDeliveryException {
+    private void appendBatch(List<Event> events, long timeout, TimeUnit tu) throws RpcDeliveryException {
 
         assertReady();
 
@@ -307,19 +307,19 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
                     }
                 });
             } catch (RejectedExecutionException ex) {
-                throw new EventDeliveryException(this + ": Executor error", ex);
+                throw new RpcDeliveryException(this + ": Executor error", ex);
             }
 
             try {
                 handshake.get(connectTimeout, TimeUnit.MILLISECONDS);
             } catch (TimeoutException ex) {
-                throw new EventDeliveryException(this + ": Handshake timed out after " + connectTimeout + "ms", ex);
+                throw new RpcDeliveryException(this + ": Handshake timed out after " + connectTimeout + "ms", ex);
             } catch (InterruptedException ex) {
-                throw new EventDeliveryException(this + ": Interrupted in handshake", ex);
+                throw new RpcDeliveryException(this + ": Interrupted in handshake", ex);
             } catch (ExecutionException ex) {
-                throw new EventDeliveryException(this + ": RPC request exception", ex);
+                throw new RpcDeliveryException(this + ": RPC request exception", ex);
             } catch (CancellationException ex) {
-                throw new EventDeliveryException(this + ": RPC request cancelled", ex);
+                throw new RpcDeliveryException(this + ": RPC request cancelled", ex);
             } finally {
                 if (!handshake.isDone()) {
                     handshake.cancel(true);
@@ -336,24 +336,23 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
      * @param callFuture Future to wait on
      * @param timeout Time to wait before failing
      * @param tu Time Unit of {@code timeout}
-     * @throws EventDeliveryException If there is a timeout or if Status != OK
+     * @throws RpcDeliveryException If there is a timeout or if Status != OK
      */
-    private void waitForStatusOK(CallFuture<Status> callFuture, long timeout, TimeUnit tu)
-            throws EventDeliveryException {
+    private void waitForStatusOK(CallFuture<Status> callFuture, long timeout, TimeUnit tu) throws RpcDeliveryException {
         try {
             Status status = callFuture.get(timeout, tu);
             if (status != Status.OK) {
-                throw new EventDeliveryException(this + ": Avro RPC call returned Status: " + status);
+                throw new RpcDeliveryException(this + ": Avro RPC call returned Status: " + status);
             }
         } catch (CancellationException ex) {
-            throw new EventDeliveryException(this + ": RPC future was cancelled", ex);
+            throw new RpcDeliveryException(this + ": RPC future was cancelled", ex);
         } catch (ExecutionException ex) {
-            throw new EventDeliveryException(this + ": Exception thrown from remote handler", ex);
+            throw new RpcDeliveryException(this + ": Exception thrown from remote handler", ex);
         } catch (TimeoutException ex) {
-            throw new EventDeliveryException(this + ": RPC request timed out", ex);
+            throw new RpcDeliveryException(this + ": RPC request timed out", ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new EventDeliveryException(this + ": RPC request interrupted", ex);
+            throw new RpcDeliveryException(this + ": RPC request interrupted", ex);
         }
     }
 
@@ -378,14 +377,14 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     /**
-     * If the connection state != READY, throws {@link EventDeliveryException}.
+     * If the connection state != READY, throws {@link RpcDeliveryException}.
      */
-    private void assertReady() throws EventDeliveryException {
+    private void assertReady() throws RpcDeliveryException {
         stateLock.lock();
         try {
             ConnState curState = connState;
             if (curState != ConnState.READY) {
-                throw new EventDeliveryException("RPC failed, client in an invalid state: " + curState);
+                throw new RpcDeliveryException("RPC failed, client in an invalid state: " + curState);
             }
         } finally {
             stateLock.unlock();
@@ -431,7 +430,6 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
      * @param properties The properties to instantiate the client with.
      * @return
      */
-    @Override
     public synchronized void configure(Properties properties) throws FlumeException {
         stateLock.lock();
         try {

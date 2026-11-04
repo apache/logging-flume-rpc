@@ -20,6 +20,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.compression.JZlibDecoder;
 import io.netty.handler.codec.compression.JZlibEncoder;
 import io.netty.handler.codec.compression.ZlibEncoder;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -30,10 +31,8 @@ import org.apache.avro.ipc.Responder;
 import org.apache.avro.ipc.Server;
 import org.apache.avro.ipc.netty.NettyServer;
 import org.apache.avro.ipc.specific.SpecificResponder;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.FlumeException;
 import org.apache.flume.api.RpcClientConfigurationConstants;
+import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.client.NettyAvroRpcClient;
 import org.apache.flume.source.avro.AvroFlumeEvent;
@@ -54,26 +53,23 @@ public class RpcTestUtils {
     /**
      * Helper method for testing simple (single) appends on handlers
      * @param handler
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
-    public static void handlerSimpleAppendTest(AvroSourceProtocol handler)
-            throws FlumeException, EventDeliveryException {
+    public static void handlerSimpleAppendTest(AvroSourceProtocol handler) throws IOException {
         handlerSimpleAppendTest(handler, false, false, 0);
     }
 
     /**
      * Helper method for testing simple (single) with compression level 6 appends on handlers
      * @param handler
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     public static void handlerSimpleAppendTest(
             AvroSourceProtocol handler,
             boolean enableServerCompression,
             boolean enableClientCompression,
             int compressionLevel)
-            throws FlumeException, EventDeliveryException {
+            throws IOException {
         NettyAvroRpcClient client = null;
         Server server = startServer(handler, 0, enableServerCompression);
         try {
@@ -95,23 +91,21 @@ public class RpcTestUtils {
         }
     }
 
-    public static void handlerBatchAppendTest(AvroSourceProtocol handler)
-            throws FlumeException, EventDeliveryException {
+    public static void handlerBatchAppendTest(AvroSourceProtocol handler) throws IOException {
         handlerBatchAppendTest(handler, false, false, 0);
     }
 
     /**
      * Helper method for testing batch appends on handlers
      * @param handler
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
      */
     public static void handlerBatchAppendTest(
             AvroSourceProtocol handler,
             boolean enableServerCompression,
             boolean enableClientCompression,
             int compressionLevel)
-            throws FlumeException, EventDeliveryException {
+            throws IOException {
         NettyAvroRpcClient client = null;
         Server server = startServer(handler, 0, enableServerCompression);
         try {
