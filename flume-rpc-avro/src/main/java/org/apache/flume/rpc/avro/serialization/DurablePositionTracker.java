@@ -29,7 +29,7 @@ import org.apache.flume.annotations.InterfaceAudience;
 import org.apache.flume.annotations.InterfaceStability;
 import org.apache.flume.serialization.PositionTracker;
 import org.apache.flume.serialization.TransferStateFileMeta;
-import org.apache.flume.tools.PlatformDetect;
+import org.apache.flume.source.spooldir.PlatformDetect;
 
 /**
  * <p/>Class that stores object state in an avro container file.

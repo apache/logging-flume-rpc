@@ -16,17 +16,17 @@
  */
 package org.apache.flume.rpc.api;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.avro.ipc.Server;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.FlumeException;
 import org.apache.flume.api.FailoverRpcClient;
 import org.apache.flume.api.RpcClientFactory;
+import org.apache.flume.api.RpcDeliveryException;
+import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.RpcTestUtils;
 import org.apache.flume.rpc.avro.RpcTestUtils.OKAvroHandler;
@@ -38,12 +38,12 @@ public class TestFailoverRpcClient {
      * Test a bunch of servers closing the one we are writing to and bringing
      * another one back online.
      *
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
+     * @throws RpcDeliveryException
      * @throws InterruptedException
      */
     @Test
-    public void testFailover() throws FlumeException, EventDeliveryException, InterruptedException {
+    public void testFailover() throws IOException, InterruptedException {
         FailoverRpcClient client = null;
         Server server1 = RpcTestUtils.startServer(new OKAvroHandler());
         Server server2 = RpcTestUtils.startServer(new OKAvroHandler());
@@ -124,11 +124,11 @@ public class TestFailoverRpcClient {
     /**
      * Try writing to some servers and then kill them all.
      *
-     * @throws FlumeException
-     * @throws EventDeliveryException
+     * @throws IOException
+     * @throws RpcDeliveryException
      */
-    @Test(expected = EventDeliveryException.class)
-    public void testFailedServers() throws FlumeException, EventDeliveryException {
+    @Test(expected = RpcDeliveryException.class)
+    public void testFailedServers() throws IOException {
         FailoverRpcClient client = null;
         Server server1 = RpcTestUtils.startServer(new OKAvroHandler());
         Server server2 = RpcTestUtils.startServer(new OKAvroHandler());

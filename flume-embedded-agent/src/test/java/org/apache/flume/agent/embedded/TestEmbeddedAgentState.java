@@ -52,6 +52,7 @@ public class TestEmbeddedAgentState {
 
     @Test(expected = IllegalStateException.class)
     public void testConfigureWhileStarted() {
+        AvroSinkAlias.assumeResolvable();
         try {
             agent.configure(properties);
             agent.start();
@@ -63,12 +64,14 @@ public class TestEmbeddedAgentState {
 
     @Test
     public void testConfigureMultipleTimes() {
+        AvroSinkAlias.assumeResolvable();
         agent.configure(properties);
         agent.configure(properties);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testStartWhileStarted() {
+        AvroSinkAlias.assumeResolvable();
         try {
             agent.configure(properties);
             agent.start();
@@ -90,6 +93,7 @@ public class TestEmbeddedAgentState {
 
     @Test(expected = IllegalStateException.class)
     public void testStoppedWhileStopped() {
+        AvroSinkAlias.assumeResolvable();
         try {
             agent.configure(properties);
         } catch (Exception e) {
@@ -100,6 +104,7 @@ public class TestEmbeddedAgentState {
 
     @Test(expected = IllegalStateException.class)
     public void testStopAfterStop() {
+        AvroSinkAlias.assumeResolvable();
         try {
             agent.configure(properties);
             agent.start();
@@ -112,6 +117,7 @@ public class TestEmbeddedAgentState {
 
     @Test(expected = IllegalStateException.class)
     public void testStopAfterConfigure() {
+        AvroSinkAlias.assumeResolvable();
         try {
             agent.configure(properties);
         } catch (Exception e) {

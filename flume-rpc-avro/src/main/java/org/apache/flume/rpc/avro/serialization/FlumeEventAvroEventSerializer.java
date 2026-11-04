@@ -19,7 +19,7 @@ package org.apache.flume.rpc.avro.serialization;
 import java.io.OutputStream;
 import org.apache.avro.Schema;
 import org.apache.flume.Context;
-import org.apache.flume.Event;
+import org.apache.flume.event.Event;
 import org.apache.flume.serialization.EventSerializer;
 
 public class FlumeEventAvroEventSerializer extends AbstractAvroEventSerializer<Event> {

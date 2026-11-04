@@ -16,6 +16,7 @@
  */
 package org.apache.flume.rpc.thrift.api;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.rpc.thrift.client.ThriftRpcClient;
@@ -32,7 +33,7 @@ public class SecureRpcClientFactory {
      * @return - An {@linkplain org.apache.flume.api.RpcClient} which uses thrift configured with the
      * given parameters.
      */
-    public static RpcClient getThriftInstance(Properties props) {
+    public static RpcClient getThriftInstance(Properties props) throws IOException {
         ThriftRpcClient client = new SecureThriftRpcClient();
         client.configure(props);
         return client;

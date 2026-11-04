@@ -38,8 +38,8 @@ public class TestDefaultSourceFactory {
     @Test
     public void testDuplicateCreate() {
 
-        Source thriftSource1 = sourceFactory.create("thriftSource1", "thrift");
-        Source thriftSource2 = sourceFactory.create("thriftSource2", "thrift");
+        Source thriftSource1 = sourceFactory.create("thriftSource1", ThriftSource.class.getName());
+        Source thriftSource2 = sourceFactory.create("thriftSource2", ThriftSource.class.getName());
 
         Assert.assertNotNull(thriftSource1);
         Assert.assertNotNull(thriftSource2);
@@ -47,8 +47,8 @@ public class TestDefaultSourceFactory {
         Assert.assertTrue(thriftSource1 instanceof ThriftSource);
         Assert.assertTrue(thriftSource2 instanceof ThriftSource);
 
-        Source s1 = sourceFactory.create("thriftSource1", "thrift");
-        Source s2 = sourceFactory.create("thriftSource2", "thrift");
+        Source s1 = sourceFactory.create("thriftSource1", ThriftSource.class.getName());
+        Source s2 = sourceFactory.create("thriftSource2", ThriftSource.class.getName());
 
         Assert.assertNotSame(thriftSource1, s1);
         Assert.assertNotSame(thriftSource2, s2);
@@ -65,7 +65,7 @@ public class TestDefaultSourceFactory {
         verifySourceCreation("seq-src", "seq", SequenceGeneratorSource.class);
         verifySourceCreation("netcat-src", "netcat", NetcatSource.class);
         verifySourceCreation("exec-src", "exec", ExecSource.class);
-        verifySourceCreation("thrift-src", "thrift", ThriftSource.class);
+        verifySourceCreation("thrift-src", ThriftSource.class.getName(), ThriftSource.class);
         verifySourceCreation("custom-src", MockSource.class.getCanonicalName(), MockSource.class);
     }
 }

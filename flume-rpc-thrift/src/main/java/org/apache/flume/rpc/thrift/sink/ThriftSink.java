@@ -16,6 +16,7 @@
  */
 package org.apache.flume.rpc.thrift.sink;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
@@ -26,14 +27,14 @@ import org.apache.flume.sink.AbstractRpcSink;
 /**
  * <p>
  * A {@link org.apache.flume.Sink} implementation that can send events to an RPC server (such as
- * Flume's {@link org.apache.flume.source.ThriftSource}).
+ * Flume's {@link org.apache.flume.source.thrift.ThriftSource}).
  * </p>
  * <p>
  * This sink forms one half of Flume's tiered collection support. Events sent to
  * this sink are transported over the network to the hostname / port pair using
  * the RPC implementation encapsulated in {@link RpcClient}.
  * The destination is an instance of Flume's
- * {@link org.apache.flume.source.ThriftSource}, which
+ * {@link org.apache.flume.source.thrift.ThriftSource}, which
  * allows Flume agents to forward to other Flume agents, forming a tiered
  * collection infrastructure. Of course, nothing prevents one from using this
  * sink to speak to other custom built infrastructure that implements the same
@@ -101,7 +102,7 @@ import org.apache.flume.sink.AbstractRpcSink;
  */
 public class ThriftSink extends AbstractRpcSink {
     @Override
-    protected RpcClient initializeRpcClient(Properties props) {
+    protected RpcClient initializeRpcClient(Properties props) throws IOException {
         // Only one thread is enough, since only one sink thread processes
         // transactions at any given time. Each sink owns its own Rpc client.
         props.setProperty(RpcClientConfigurationConstants.CONFIG_CONNECTION_POOL_SIZE, String.valueOf(1));
@@ -111,7 +112,8 @@ public class ThriftSink extends AbstractRpcSink {
             return SecureRpcClientFactory.getThriftInstance(props);
         } else {
             props.setProperty(
-                    RpcClientConfigurationConstants.CONFIG_CLIENT_TYPE, RpcClientFactory.ClientType.THRIFT.name());
+                    RpcClientConfigurationConstants.CONFIG_CLIENT_TYPE,
+                    RpcClientConfigurationConstants.THRIFT_CLIENT_TYPE);
             return RpcClientFactory.getInstance(props);
         }
     }
