@@ -30,9 +30,10 @@
   <description>Thrift transport for the Flume client API.</description>
 
   <properties>
-    <module.name>org.apache.flume.client.thrift</module.name>
-    <spotbugs.maxAllowedViolations>23</spotbugs.maxAllowedViolations>
+    <!-- TODO fix spotbugs/pmd violations -->
+    <spotbugs.maxAllowedViolations>4</spotbugs.maxAllowedViolations>
     <pmd.maxAllowedViolations>3</pmd.maxAllowedViolations>
+    <module.name>org.apache.flume.client.thrift</module.name>
     <!-- Only used by the `compileThrift` profile -->
     <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
     <rewrite-logging-frameworks.version>3.32.0</rewrite-logging-frameworks.version>

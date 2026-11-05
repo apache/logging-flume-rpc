@@ -38,7 +38,10 @@ analytic application.
 Apache Flume RPC provides the components that let Flume agents and applications
 exchange events over the network:
 
-* `flume-rpc-avro`: the Avro RPC client, source and sink,
+* `flume-avro-client`: the Avro RPC client, which only depends on `flume-client`,
+* `flume-avro-source` and `flume-avro-sink`: the Avro source and sink,
+* `flume-avro-serializer`: event serializers and deserializers for Avro container files,
+* `flume-spooldir-source`: the spooling directory source and the `avro-client` command,
 * `flume-thrift-client`: the Thrift RPC client, which only depends on `flume-client`,
 * `flume-thrift-source` and `flume-thrift-sink`: the Thrift source and sink,
 * `flume-embedded-agent`: a stable public API for embedding a Flume agent in an application.
