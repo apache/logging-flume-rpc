@@ -63,7 +63,7 @@
 
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-rpc-avro</artifactId>
+      <artifactId>flume-avro-sink</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
