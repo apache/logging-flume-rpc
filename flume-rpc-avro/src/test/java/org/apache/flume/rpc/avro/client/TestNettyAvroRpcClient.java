@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.avro.ipc.Server;
+import org.apache.flume.api.FlumeClientException;
 import org.apache.flume.api.RpcClientConfigurationConstants;
-import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.RpcTestUtils;
@@ -48,7 +48,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple request
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     @Test
     public void testOKServerSimple() throws IOException {
@@ -58,7 +58,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple request with compression on the server and client with compression level 6
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     @Test
     public void testOKServerSimpleCompressionLevel6() throws IOException {
@@ -70,7 +70,7 @@ public class TestNettyAvroRpcClient {
      *
      * Compression level 0 = no compression
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     @Test
     public void testOKServerSimpleCompressionLevel0() throws IOException {
@@ -80,9 +80,9 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple request with compression on the client only
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testOKServerSimpleCompressionClientOnly() throws IOException {
         RpcTestUtils.handlerSimpleAppendTest(new OKAvroHandler(), false, true, 6);
     }
@@ -90,9 +90,9 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple request with compression on the server only
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testOKServerSimpleCompressionServerOnly() throws IOException {
         RpcTestUtils.handlerSimpleAppendTest(new OKAvroHandler(), true, false, 6);
     }
@@ -100,7 +100,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     @Test
     public void testOKServerBatch() throws IOException {
@@ -110,7 +110,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request with compression deflate level 0
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     @Test
     public void testOKServerBatchCompressionLevel0() throws IOException {
@@ -120,7 +120,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request with compression deflate level 6
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     @Test
     public void testOKServerBatchCompressionLevel6() throws IOException {
@@ -130,9 +130,9 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request where the server only is using compression
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testOKServerBatchCompressionServerOnly() throws IOException {
         RpcTestUtils.handlerBatchAppendTest(new OKAvroHandler(), true, false, 6);
     }
@@ -140,9 +140,9 @@ public class TestNettyAvroRpcClient {
     /**
      * Simple batch request where the client only is using compression
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testOKServerBatchCompressionClientOnly() throws IOException {
         RpcTestUtils.handlerBatchAppendTest(new OKAvroHandler(), false, true, 6);
     }
@@ -152,7 +152,7 @@ public class TestNettyAvroRpcClient {
      * Note: this test tries to connect to port 1 on localhost.
      * @throws IOException
      */
-    @Test(expected = IOException.class)
+    @Test(expected = FlumeClientException.class)
     public void testUnableToConnect() throws IOException {
         @SuppressWarnings("unused")
         NettyAvroRpcClient client = new NettyAvroRpcClient();
@@ -165,7 +165,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Send too many events at once. Should handle this case gracefully.
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     @Test
     public void testBatchOverrun() throws IOException {
@@ -198,10 +198,10 @@ public class TestNettyAvroRpcClient {
     /**
      * First connect the client, then shut down the server, then send a request.
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      * @throws InterruptedException
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testServerDisconnect() throws IOException, InterruptedException {
         NettyAvroRpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
@@ -229,9 +229,9 @@ public class TestNettyAvroRpcClient {
     /**
      * First connect the client, then close the client, then send a request.
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testClientClosedRequest() throws IOException {
         NettyAvroRpcClient client = null;
         Server server = RpcTestUtils.startServer(new OKAvroHandler());
@@ -250,7 +250,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Send an event to an online server that returns FAILED.
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testFailedServerSimple() throws IOException {
 
         RpcTestUtils.handlerSimpleAppendTest(new FailedAvroHandler());
@@ -260,7 +260,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Send an event to an online server that returns UNKNOWN.
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testUnknownServerSimple() throws IOException {
 
         RpcTestUtils.handlerSimpleAppendTest(new UnknownAvroHandler());
@@ -270,7 +270,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Send an event to an online server that throws an exception.
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testThrowingServerSimple() throws IOException {
 
         RpcTestUtils.handlerSimpleAppendTest(new ThrowingAvroHandler());
@@ -280,7 +280,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Send a batch of events to a server that returns FAILED.
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testFailedServerBatch() throws IOException {
 
         RpcTestUtils.handlerBatchAppendTest(new FailedAvroHandler());
@@ -290,7 +290,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Send a batch of events to a server that returns UNKNOWN.
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testUnknownServerBatch() throws IOException {
 
         RpcTestUtils.handlerBatchAppendTest(new UnknownAvroHandler());
@@ -300,7 +300,7 @@ public class TestNettyAvroRpcClient {
     /**
      * Send a batch of events to a server that always throws exceptions.
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testThrowingServerBatch() throws IOException {
 
         RpcTestUtils.handlerBatchAppendTest(new ThrowingAvroHandler());
@@ -312,7 +312,7 @@ public class TestNettyAvroRpcClient {
      * NioClientSocketChannelFactory number of io worker threads
      *
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     @Test
     public void testAppendWithMaxIOWorkers() throws IOException {
@@ -347,7 +347,7 @@ public class TestNettyAvroRpcClient {
      * Compression level 0 = no compression
      *
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     @Test
     public void testAppendWithMaxIOWorkersSimpleCompressionLevel0() throws IOException {

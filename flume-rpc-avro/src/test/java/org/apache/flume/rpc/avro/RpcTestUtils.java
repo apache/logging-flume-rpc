@@ -31,8 +31,8 @@ import org.apache.avro.ipc.Responder;
 import org.apache.avro.ipc.Server;
 import org.apache.avro.ipc.netty.NettyServer;
 import org.apache.avro.ipc.specific.SpecificResponder;
+import org.apache.flume.api.FlumeClientException;
 import org.apache.flume.api.RpcClientConfigurationConstants;
-import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.client.NettyAvroRpcClient;
@@ -55,7 +55,7 @@ public class RpcTestUtils {
      * Helper method for testing simple (single) appends on handlers
      * @param handler
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     public static void handlerSimpleAppendTest(AvroSourceProtocol handler) throws IOException {
         handlerSimpleAppendTest(handler, false, false, 0);
@@ -65,7 +65,7 @@ public class RpcTestUtils {
      * Helper method for testing simple (single) with compression level 6 appends on handlers
      * @param handler
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     public static void handlerSimpleAppendTest(
             AvroSourceProtocol handler,
@@ -102,7 +102,7 @@ public class RpcTestUtils {
      * Helper method for testing batch appends on handlers
      * @param handler
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
     public static void handlerBatchAppendTest(
             AvroSourceProtocol handler,
