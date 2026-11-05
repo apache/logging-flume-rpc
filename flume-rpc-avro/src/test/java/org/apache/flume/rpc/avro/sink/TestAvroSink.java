@@ -33,7 +33,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import org.apache.avro.ipc.Server;
-import org.apache.avro.ipc.netty.NettyServer;
 import org.apache.avro.ipc.specific.SpecificResponder;
 import org.apache.flume.Channel;
 import org.apache.flume.ChannelSelector;
@@ -53,6 +52,7 @@ import org.apache.flume.exception.ChannelException;
 import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.flume.lifecycle.LifecycleController;
 import org.apache.flume.lifecycle.LifecycleState;
+import org.apache.flume.rpc.avro.RpcTestUtils;
 import org.apache.flume.rpc.avro.source.AvroSource;
 import org.apache.flume.sdk.test.Whitebox;
 import org.apache.flume.source.avro.AvroFlumeEvent;
@@ -119,8 +119,10 @@ public class TestAvroSink {
 
     private Server createServer(AvroSourceProtocol protocol) throws InterruptedException {
 
-        Server server = new NettyServer(
-                new SpecificResponder(AvroSourceProtocol.class, protocol), new InetSocketAddress(hostname, port));
+        Server server = RpcTestUtils.newNettyServer(
+                new SpecificResponder(AvroSourceProtocol.class, protocol),
+                new InetSocketAddress(hostname, port),
+                (ch) -> {});
 
         return server;
     }
@@ -831,7 +833,7 @@ public class TestAvroSink {
     }
 
     private Server createSslServer(AvroSourceProtocol protocol) throws InterruptedException {
-        return new NettyServer(
+        return RpcTestUtils.newNettyServer(
                 new SpecificResponder(AvroSourceProtocol.class, protocol),
                 new InetSocketAddress(hostname, port),
                 (ch) -> {

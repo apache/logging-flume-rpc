@@ -17,15 +17,21 @@
 package org.apache.flume.rpc.avro;
 
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.compression.JZlibDecoder;
 import io.netty.handler.codec.compression.JZlibEncoder;
 import io.netty.handler.codec.compression.ZlibEncoder;
+import io.netty.util.concurrent.Future;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import junit.framework.Assert;
 import org.apache.avro.ipc.Responder;
 import org.apache.avro.ipc.Server;
@@ -166,14 +172,14 @@ public class RpcTestUtils {
         Server server = null;
         try {
             if (enableCompression) {
-                server = new NettyServer(responder, new InetSocketAddress(localhost, port), (ch) -> {
+                server = newNettyServer(responder, new InetSocketAddress(localhost, port), (ch) -> {
                     ChannelPipeline pipeline = ch.pipeline();
                     ZlibEncoder encoder = new JZlibEncoder(6);
                     pipeline.addFirst("deflater", encoder);
                     pipeline.addFirst("inflater", new JZlibDecoder());
                 });
             } else {
-                server = new NettyServer(responder, new InetSocketAddress(localhost, port));
+                server = newNettyServer(responder, new InetSocketAddress(localhost, port), (ch) -> {});
             }
             server.start();
             logger.info(
@@ -194,6 +200,37 @@ public class RpcTestUtils {
 
     public static Server startServer(AvroSourceProtocol handler, int port) {
         return startServer(handler, port, false);
+    }
+
+    /**
+     * Creates a server whose event loops shut down without a quiet period.
+     *
+     * <p>{@link NettyServer#close()} shuts its event loops down one after the other,
+     * each waiting for Netty's default quiet period of 2 s, which test servers do not need.
+     */
+    public static NettyServer newNettyServer(
+            Responder responder, InetSocketAddress address, Consumer<SocketChannel> channelInitializer)
+            throws InterruptedException {
+        return new NettyServer(
+                responder,
+                address,
+                channelInitializer,
+                bootstrap -> {},
+                new QuickShutdownEventLoopGroup(1),
+                new QuickShutdownEventLoopGroup(10),
+                null);
+    }
+
+    private static final class QuickShutdownEventLoopGroup extends MultiThreadIoEventLoopGroup {
+
+        QuickShutdownEventLoopGroup(int nThreads) {
+            super(nThreads, NioIoHandler.newFactory());
+        }
+
+        @Override
+        public Future<?> shutdownGracefully() {
+            return shutdownGracefully(0, 15, TimeUnit.SECONDS);
+        }
     }
 
     /**
