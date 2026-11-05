@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.avro.ipc.Server;
 import org.apache.flume.api.FailoverRpcClient;
+import org.apache.flume.api.FlumeClientException;
 import org.apache.flume.api.RpcClientFactory;
-import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.RpcTestUtils;
@@ -39,7 +39,7 @@ public class TestFailoverRpcClient {
      * another one back online.
      *
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      * @throws InterruptedException
      */
     @Test
@@ -125,9 +125,9 @@ public class TestFailoverRpcClient {
      * Try writing to some servers and then kill them all.
      *
      * @throws IOException
-     * @throws RpcDeliveryException
+     * @throws FlumeClientException
      */
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testFailedServers() throws IOException {
         FailoverRpcClient client = null;
         Server server1 = RpcTestUtils.startServer(new OKAvroHandler());
