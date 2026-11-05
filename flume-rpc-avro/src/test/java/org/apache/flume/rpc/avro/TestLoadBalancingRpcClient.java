@@ -24,10 +24,10 @@ import java.util.Properties;
 import java.util.Set;
 import junit.framework.Assert;
 import org.apache.avro.ipc.Server;
+import org.apache.flume.api.FlumeClientException;
 import org.apache.flume.api.LoadBalancingRpcClient;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientFactory;
-import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.avro.RpcTestUtils.LoadBalancedAvroHandler;
@@ -96,7 +96,7 @@ public class TestLoadBalancingRpcClient {
     }
 
     // This will fail without FLUME-1823
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testTwoHostFailoverThrowAfterClose() throws Exception {
         Server s1 = null;
         Server s2 = null;
@@ -512,8 +512,8 @@ public class TestLoadBalancingRpcClient {
         try {
             c.append(EventBuilder.withBody("shouldfail".getBytes()));
             // nothing should be able to process right now
-            Assert.fail("Expected RpcDeliveryException");
-        } catch (RpcDeliveryException e) {
+            Assert.fail("Expected FlumeClientException");
+        } catch (FlumeClientException e) {
             // this is expected
         }
         Thread.sleep(2500); // wait for s0 to no longer be backed off

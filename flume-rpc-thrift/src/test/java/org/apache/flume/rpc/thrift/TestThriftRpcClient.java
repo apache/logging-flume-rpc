@@ -28,10 +28,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import junit.framework.Assert;
+import org.apache.flume.api.FlumeClientException;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcClientFactory;
-import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.rpc.thrift.client.ThriftRpcClient;
@@ -133,13 +133,13 @@ public class TestThriftRpcClient {
         Assert.assertEquals(2, src.incompleteBatches);
     }
 
-    @Test(expected = RpcDeliveryException.class)
+    @Test(expected = FlumeClientException.class)
     public void testFail() throws Exception {
         src = new ThriftTestingSource(
                 ThriftTestingSource.HandlerType.FAIL.name(), port, ThriftRpcClient.COMPACT_PROTOCOL);
         client = (ThriftRpcClient) RpcClientFactory.getInstance(props);
         insertEvents(client, 2); // 2 events
-        Assert.fail("Expected RpcDeliveryException to be thrown.");
+        Assert.fail("Expected FlumeClientException to be thrown.");
     }
 
     @Test
@@ -149,7 +149,7 @@ public class TestThriftRpcClient {
                     ThriftTestingSource.HandlerType.ERROR.name(), port, ThriftRpcClient.COMPACT_PROTOCOL);
             client = (ThriftRpcClient) RpcClientFactory.getThriftInstance("0.0.0.0", port);
             insertEvents(client, 2); // 2 events
-        } catch (RpcDeliveryException ex) {
+        } catch (FlumeClientException ex) {
             Assert.assertEquals("Failed to send event. ", ex.getMessage());
         }
     }
@@ -161,7 +161,7 @@ public class TestThriftRpcClient {
                     ThriftTestingSource.HandlerType.TIMEOUT.name(), port, ThriftRpcClient.COMPACT_PROTOCOL);
             client = (ThriftRpcClient) RpcClientFactory.getThriftInstance(props);
             insertEvents(client, 2); // 2 events
-        } catch (RpcDeliveryException ex) {
+        } catch (FlumeClientException ex) {
             throw ex.getCause();
         }
     }

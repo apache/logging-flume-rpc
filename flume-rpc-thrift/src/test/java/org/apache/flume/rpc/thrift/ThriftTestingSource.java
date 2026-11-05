@@ -45,10 +45,10 @@ import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
 import org.apache.flume.FlumeException;
 import org.apache.flume.Transaction;
+import org.apache.flume.api.FlumeClientException;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
 import org.apache.flume.api.RpcClientFactory;
-import org.apache.flume.api.RpcDeliveryException;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.channel.MemoryChannel;
 import org.apache.flume.channel.ReplicatingChannelSelector;
@@ -591,12 +591,12 @@ public class ThriftTestingSource {
             Event event = EventBuilder.withBody("hello".getBytes());
             try {
                 client.append(event);
-            } catch (RpcDeliveryException e) {
+            } catch (FlumeClientException e) {
                 //
             }
             try {
                 client.appendBatch(Arrays.asList(event));
-            } catch (RpcDeliveryException e) {
+            } catch (FlumeClientException e) {
                 //
             }
             SourceCounter sc = (SourceCounter) Whitebox.getInternalState(source, "sourceCounter");
@@ -621,7 +621,7 @@ public class ThriftTestingSource {
                 }
                 try {
                     client.appendBatch(events);
-                } catch (RpcDeliveryException e) {
+                } catch (FlumeClientException e) {
                     throw new FlumeException(e);
                 }
             }

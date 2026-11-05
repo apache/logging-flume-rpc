@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
+import org.apache.flume.api.FlumeClientException;
 import org.apache.flume.auth.FlumeAuthenticationUtil;
 import org.apache.flume.auth.FlumeAuthenticator;
 import org.apache.flume.auth.PrivilegedExecutor;
@@ -43,7 +44,7 @@ public class SecureThriftRpcClient extends ThriftRpcClient {
     private FlumeAuthenticator privilegedExecutor;
 
     @Override
-    public void configure(Properties properties) throws IOException {
+    public void configure(Properties properties) throws FlumeClientException {
         super.configure(properties);
         serverPrincipal = properties.getProperty(SERVER_PRINCIPAL);
         if (serverPrincipal == null || serverPrincipal.isEmpty()) {
@@ -59,8 +60,8 @@ public class SecureThriftRpcClient extends ThriftRpcClient {
         String keytab = properties.getProperty(CLIENT_KEYTAB);
         this.privilegedExecutor = FlumeAuthenticationUtil.getAuthenticator(clientPrincipal, keytab);
         if (!privilegedExecutor.isAuthenticated()) {
-            throw new IOException("Authentication failed in Kerberos mode for " + "principal " + clientPrincipal
-                    + " keytab " + keytab);
+            throw new FlumeClientException("Authentication failed in Kerberos mode for " + "principal "
+                    + clientPrincipal + " keytab " + keytab);
         }
     }
 
