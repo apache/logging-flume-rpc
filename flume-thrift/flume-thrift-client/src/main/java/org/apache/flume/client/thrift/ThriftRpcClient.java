@@ -243,7 +243,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() throws FlumeClientException {
         try {
             // Do not release this, because this client is not to be used again
             stateLock.lock();
@@ -261,7 +261,7 @@ public class ThriftRpcClient extends SSLContextAwareAbstractRpcClient {
             } else if (ex instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            throw new IOException("Failed to close RPC client. ", ex);
+            throw new FlumeClientException("Failed to close RPC client.", ex);
         } finally {
             stateLock.unlock();
         }

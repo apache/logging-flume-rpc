@@ -156,7 +156,7 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() throws FlumeClientException {
         if (callTimeoutPool != null) {
             callTimeoutPool.shutdown();
             try {
@@ -181,7 +181,7 @@ public class NettyAvroRpcClient extends SSLContextAwareAbstractRpcClient {
                 transceiver.close();
             }
         } catch (IOException ex) {
-            throw new IOException(this + ": Error closing transceiver.", ex);
+            throw new FlumeClientException(this + ": Error closing transceiver.", ex);
         } finally {
             setState(ConnState.DEAD);
         }
