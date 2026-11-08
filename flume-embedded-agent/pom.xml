@@ -36,8 +36,6 @@
 
   <dependencies>
 
-
-
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-core</artifactId>
