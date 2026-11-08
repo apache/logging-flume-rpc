@@ -40,15 +40,11 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-sdk</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.flume</groupId>
       <artifactId>flume-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
-      <artifactId>flume-client</artifactId>
+      <artifactId>flume-sdk</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.avro</groupId>

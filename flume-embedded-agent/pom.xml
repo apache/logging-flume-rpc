@@ -36,15 +36,7 @@
 
   <dependencies>
 
-    <dependency>
-      <groupId>org.apache.flume</groupId>
-      <artifactId>flume-sdk</artifactId>
-    </dependency>
 
-    <dependency>
-      <groupId>org.apache.flume</groupId>
-      <artifactId>flume-configuration</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.flume</groupId>
