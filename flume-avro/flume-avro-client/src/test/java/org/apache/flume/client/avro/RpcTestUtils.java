@@ -39,11 +39,11 @@ import org.apache.avro.ipc.netty.NettyServer;
 import org.apache.avro.ipc.specific.SpecificResponder;
 import org.apache.flume.api.FlumeClientException;
 import org.apache.flume.api.RpcClientConfigurationConstants;
+import org.apache.flume.avro.AvroFlumeEvent;
+import org.apache.flume.avro.AvroSourceProtocol;
+import org.apache.flume.avro.Status;
 import org.apache.flume.event.Event;
 import org.apache.flume.event.EventBuilder;
-import org.apache.flume.source.avro.AvroFlumeEvent;
-import org.apache.flume.source.avro.AvroSourceProtocol;
-import org.apache.flume.source.avro.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

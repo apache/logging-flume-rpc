@@ -64,12 +64,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.api.FlumeClientException;
 import org.apache.flume.api.RpcClient;
 import org.apache.flume.api.RpcClientConfigurationConstants;
+import org.apache.flume.avro.AvroFlumeEvent;
+import org.apache.flume.avro.AvroSourceProtocol;
+import org.apache.flume.avro.Status;
 import org.apache.flume.client.spi.RpcClientProvider;
 import org.apache.flume.client.spi.SSLContextAwareAbstractRpcClient;
 import org.apache.flume.event.Event;
-import org.apache.flume.source.avro.AvroFlumeEvent;
-import org.apache.flume.source.avro.AvroSourceProtocol;
-import org.apache.flume.source.avro.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

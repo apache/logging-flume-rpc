@@ -33,7 +33,7 @@
   <properties>
     <!-- TODO fix PMD violations -->
     <pmd.maxAllowedViolations>3</pmd.maxAllowedViolations>
-    <module.name>org.apache.flume.source.avro.server</module.name>
+    <module.name>org.apache.flume.source.avro</module.name>
   </properties>
 
   <dependencies>
