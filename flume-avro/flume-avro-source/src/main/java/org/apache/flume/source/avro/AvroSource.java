@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.flume.source.avro.server;
+package org.apache.flume.source.avro;
 
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.compression.JZlibDecoder;
@@ -43,6 +43,9 @@ import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
 import org.apache.flume.Source;
+import org.apache.flume.avro.AvroFlumeEvent;
+import org.apache.flume.avro.AvroSourceProtocol;
+import org.apache.flume.avro.Status;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.conf.Configurables;
 import org.apache.flume.conf.LogPrivacyUtil;
@@ -51,9 +54,6 @@ import org.apache.flume.event.EventBuilder;
 import org.apache.flume.exception.ChannelException;
 import org.apache.flume.instrumentation.SourceCounter;
 import org.apache.flume.source.SslContextAwareAbstractSource;
-import org.apache.flume.source.avro.AvroFlumeEvent;
-import org.apache.flume.source.avro.AvroSourceProtocol;
-import org.apache.flume.source.avro.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

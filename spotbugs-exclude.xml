@@ -21,7 +21,7 @@
                 xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
   <Match>
     <Or>
-      <Class name="~org\.apache\.flume\.source\.avro\.(AvroFlumeEvent|AvroSourceProtocol|Status)(\$.*)?"/>
+      <Class name="~org\.apache\.flume\.avro\.(AvroFlumeEvent|AvroSourceProtocol|Status)(\$.*)?"/>
       <Class name="~org\.apache\.flume\.source\.spooldir\.TransferStateFileMeta(\$.*)?"/>
       <Class name="~org\.apache\.flume\.thrift\.(Status|ThriftFlumeEvent|ThriftSourceProtocol)(\$.*)?"/>
     </Or>

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.flume.source.avro.server;
+package org.apache.flume.source.avro;
 
 import org.apache.flume.Source;
 import org.apache.flume.channel.ChannelProcessor;

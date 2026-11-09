@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="https://logging.apache.org/xml/ns"
+       xsi:schemaLocation="https://logging.apache.org/xml/ns https://logging.apache.org/xml/ns/log4j-changelog-0.xsd"
+       type="changed">
+  <description format="asciidoc">Move the Avro RPC protocol classes (`AvroSourceProtocol`, `AvroFlumeEvent` and `Status`) from `org.apache.flume.source.avro` to `org.apache.flume.avro`, so that `AvroSource` can use the `org.apache.flume.source.avro` package. Flume 1.x clients can only connect to a Flume 2.x Avro source if they use Avro 1.11.1 or later, since Avro 1.11.0 (shipped with Flume 1.11.0) rejects the renamed `Status` enum (see https://issues.apache.org/jira/browse/AVRO-3133[AVRO-3133]). Flume 2.x clients can connect to Flume 1.x Avro sources without changes.</description>
+</entry>
